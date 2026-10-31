@@ -88,7 +88,7 @@ export interface GraphProviderServiceContainerOptions {
   logger: VsCodeLogger;
   callbacks: MessageDispatcherCallbacks;
   onIndexingComplete: () => Promise<void>;
-  viewProvider: () => vscode.WebviewView | undefined;
+  viewProvider: () => Pick<vscode.WebviewView, "webview"> | undefined;
   updateGraph: (isRefresh?: boolean, refreshReason?: GraphRefreshReason) => Promise<void>;
   handleDrillDown: (
     filePathOrSymbolId: string,

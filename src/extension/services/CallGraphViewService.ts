@@ -95,7 +95,7 @@ function langFromPath(filePath: string): SupportedLang | null {
 
 export class CallGraphViewService implements vscode.Disposable, ICallGraphQueryService {
   /** Sidebar webview managed by GraphProvider — set via setSidebarWebview(). */
-  private sidebarWebview: vscode.WebviewView | null = null;
+  private sidebarWebview: Pick<vscode.WebviewView, "webview"> | null = null;
   private indexer: CallGraphIndexer | null = null;
   /** Long-lived GraphExtractor — caches compiled tree-sitter Query objects across files */
   private extractor: GraphExtractor | null = null;
@@ -198,7 +198,7 @@ export class CallGraphViewService implements vscode.Disposable, ICallGraphQueryS
    * Inject the sidebar webview so call-graph messages flow through the same
    * channel as dependency-graph and symbol-graph messages.
    */
-  setSidebarWebview(view: vscode.WebviewView | null): void {
+  setSidebarWebview(view: Pick<vscode.WebviewView, "webview"> | null): void {
     this.sidebarWebview = view;
   }
   /** E2E observability getters — read by the custom `getContext` command. */
