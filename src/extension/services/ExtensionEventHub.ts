@@ -22,7 +22,7 @@ export interface EventHubOptions {
   unusedAnalysisCache?: UnusedAnalysisCache;
   stateManager: ProviderStateManager;
   navigationService?: EditorNavigationService;
-  viewProvider: () => vscode.WebviewView | undefined;
+  viewProvider: () => Pick<vscode.WebviewView, "webview"> | undefined;
   updateGraph: (isRefresh?: boolean, refreshReason?: GraphRefreshReason) => Promise<void>;
   handleDrillDown: (
     filePathOrSymbolId: string,
@@ -39,7 +39,7 @@ export class ExtensionEventHub {
   private readonly unusedAnalysisCache?: UnusedAnalysisCache;
   private readonly stateManager: ProviderStateManager;
   private readonly navigationService?: EditorNavigationService;
-  private readonly viewProvider: () => vscode.WebviewView | undefined;
+  private readonly viewProvider: () => Pick<vscode.WebviewView, "webview"> | undefined;
   private readonly updateGraph: (isRefresh?: boolean, refreshReason?: GraphRefreshReason) => Promise<void>;
   private readonly handleDrillDown: (
     filePathOrSymbolId: string,

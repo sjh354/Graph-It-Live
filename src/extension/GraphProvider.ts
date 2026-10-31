@@ -54,7 +54,9 @@ type GraphRefreshReason =
 export class GraphProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = "graph-it-live.graphView";
 
-  private _view?: vscode.WebviewView;
+  private _view?: vscode.WebviewView | vscode.WebviewPanel;
+  private _editorPanel?: vscode.WebviewPanel;
+  private _sidebarView?: vscode.WebviewView;
   private readonly _container: ServiceContainer;
   private _configSnapshot: ProviderConfigSnapshot;
   private readonly _fileChangeScheduler?: FileChangeScheduler;
@@ -268,6 +270,7 @@ export class GraphProvider implements vscode.WebviewViewProvider {
 
   private async disposeServices(): Promise<void> {
     this._isDisposing = true;
+    this._editorPanel?.dispose();
     this._drillDownSeq++;
     this._graphState.abortAndClearExpansionControllers();
     // A running build holds its webview message open until aborted.
@@ -918,15 +921,36 @@ export class GraphProvider implements vscode.WebviewViewProvider {
     await this.handleDrillDown(filePath, true, currentMode);
   }
 
-  public resolveWebviewView(
-    webviewView: vscode.WebviewView,
-    _context: vscode.WebviewViewResolveContext,
-    _token: vscode.CancellationToken,
-  ) {
-    this._view = webviewView;
+  public showEditorGraph(): void {
+    if (this._editorPanel) {
+      this._view = this._editorPanel;
+      this._callGraphViewService?.setSidebarWebview(this._editorPanel);
+      this._editorPanel.reveal(undefined, true);
+      void this.updateGraph();
+      return;
+    }
 
-    // Share the sidebar webview with CallGraphViewService so it can postMessage
-    this._callGraphViewService?.setSidebarWebview(webviewView);
+    const panel = vscode.window.createWebviewPanel(
+      "graph-it-live.editorGraph",
+      "Graph-It-Live",
+      { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true },
+      { ...this.webviewManager.getWebviewOptions(), retainContextWhenHidden: true },
+    );
+    this._editorPanel = panel;
+    panel.onDidDispose(() => { this._editorPanel = undefined; });
+    this.resolveWebviewView(panel);
+  }
+
+  public resolveWebviewView(
+    webviewView: vscode.WebviewView | vscode.WebviewPanel,
+    _context?: vscode.WebviewViewResolveContext,
+    _token?: vscode.CancellationToken,
+  ) {
+    if ("show" in webviewView) this._sidebarView = webviewView;
+    this._view = this._editorPanel ?? webviewView;
+
+    // Share the active webview with CallGraphViewService so it can postMessage
+    this._callGraphViewService?.setSidebarWebview(this._view);
 
     webviewView.webview.options = this.webviewManager.getWebviewOptions();
     webviewView.webview.html = this.webviewManager.getHtmlForWebview(webviewView.webview);
@@ -945,8 +969,12 @@ export class GraphProvider implements vscode.WebviewViewProvider {
     // remain alive so VS Code can recreate the view without reactivating extension.
     webviewView.onDidDispose(() => {
       messageListener.dispose();
-      if (this._view === webviewView) this._view = undefined;
-      this._callGraphViewService?.setSidebarWebview(null);
+      if (this._sidebarView === webviewView) this._sidebarView = undefined;
+      if (this._view === webviewView) {
+        this._view = this._editorPanel ?? this._sidebarView;
+        this._callGraphViewService?.setSidebarWebview(this._view ?? null);
+        if (this._view && !this._isDisposing) void this.updateGraph();
+      }
     });
 
     // Schedule deferred indexing now that view is ready

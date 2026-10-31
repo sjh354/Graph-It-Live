@@ -47,9 +47,13 @@ export class CommandRegistrationService {
   }
 
   private registerShowGraphCommand(): vscode.Disposable {
-    return vscode.commands.registerCommand('graph-it-live.showGraph', async () => {
+    return vscode.commands.registerCommand('graph-it-live.showGraph', async (resource?: vscode.Uri) => {
       try {
-        await vscode.commands.executeCommand('graph-it-live.graphView.focus');
+        if (resource) {
+          this.provider.showEditorGraph();
+        } else {
+          await vscode.commands.executeCommand('graph-it-live.graphView.focus');
+        }
       } catch (error) {
         this.handleCommandError('graph-it-live.showGraph', error, 'Graph-It-Live: Could not focus the graph');
       }
