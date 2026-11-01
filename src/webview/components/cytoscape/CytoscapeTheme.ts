@@ -100,7 +100,7 @@ const SYMBOL_SHAPES: ReadonlyArray<[string, string]> = [
   ["method", "round-rectangle"],
   ["variable", "diamond"],
   ["interface", "hexagon"],
-  ["type", "parallelogram"],
+  ["type", "rhomboid"],
 ];
 
 // ---------------------------------------------------------------------------
@@ -303,7 +303,6 @@ export function buildCallGraphStylesheet(isDark = true): CyStylesheet[] {
       style: {
         "line-style": "solid",
         "target-arrow-shape": "triangle",
-        "target-arrow-fill": "filled",
         "line-color": "#5a9cf8",
         "target-arrow-color": "#5a9cf8",
       },
@@ -312,8 +311,7 @@ export function buildCallGraphStylesheet(isDark = true): CyStylesheet[] {
       selector: `edge[typeRelation="IMPLEMENTS"]`,
       style: {
         "line-style": "dashed",
-        "target-arrow-shape": "triangle",
-        "target-arrow-fill": "open",
+        "target-arrow-shape": "vee",
         "line-color": "#9b59b6",
         "target-arrow-color": "#9b59b6",
       },
@@ -336,11 +334,6 @@ export function buildCallGraphStylesheet(isDark = true): CyStylesheet[] {
         // Cyclic overrides direction colours
         "z-index": 1000,
       },
-    },
-    // T036: drag cursor feedback
-    {
-      selector: "node[type != 'compound']",
-      style: { cursor: "pointer" } as Record<string, unknown>,
     },
     {
       selector: "node:selected",
@@ -370,12 +363,9 @@ export function buildCallGraphStylesheet(isDark = true): CyStylesheet[] {
         color: "#1a1a1a",
         "text-outline-color": ROOT_COLOR,
         "text-outline-width": 2,
-        // Glow effect
-        "shadow-blur": 18,
-        "shadow-color": ROOT_COLOR,
-        "shadow-opacity": 0.85,
-        "shadow-offset-x": 0,
-        "shadow-offset-y": 0,
+        "underlay-color": ROOT_COLOR,
+        "underlay-opacity": 0.25,
+        "underlay-padding": 6,
       },
     },
   ];

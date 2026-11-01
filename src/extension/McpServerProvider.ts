@@ -1,7 +1,7 @@
 /**
  * MCP Server Provider
  *
- * Registers the Graph-It-Live MCP server with VS Code using the
+ * Registers the Structure Graph MCP server with VS Code using the
  * vscode.lm.registerMcpServerDefinitionProvider API.
  *
  * The MCP server runs as a separate Node.js process (mcpServer.js) which
@@ -219,14 +219,11 @@ export class McpServerProvider implements vscode.Disposable {
       // Create stdio server definition
       // Constructor: (label, command, args?, env?, version?)
       const serverDefinition = new vscode.McpStdioServerDefinition(
-        'Graph-It-Live Dependency Analyzer',
+        'Structure Graph Dependency Analyzer',
         'node',
         [serverPath],
         env
       );
-
-      // Set cwd on the definition
-      serverDefinition.cwd = vscode.Uri.file(workspaceRoot);
 
       log.info('MCP server definition created successfully');
       return [serverDefinition];

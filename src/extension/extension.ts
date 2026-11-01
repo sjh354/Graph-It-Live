@@ -131,12 +131,12 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('graph-it-live.setWorkspace', async () => {
             const folders = vscode.workspace.workspaceFolders;
             if (!folders || folders.length === 0) {
-                vscode.window.showWarningMessage('Graph-It-Live: No workspace folders are open.');
+                vscode.window.showWarningMessage('Structure Graph: No workspace folders are open.');
                 return;
             }
             if (folders.length === 1) {
                 vscode.window.showInformationMessage(
-                    `Graph-It-Live: Already analyzing "${folders[0].name}".`
+                    `Structure Graph: Already analyzing "${folders[0].name}".`
                 );
                 return;
             }
@@ -148,7 +148,7 @@ export function activate(context: vscode.ExtensionContext) {
             const current = mcpServerProvider?.workspaceRoot;
             const pick = await vscode.window.showQuickPick(items, {
                 placeHolder: `Current workspace: ${current ?? 'none'} — select a folder to analyze`,
-                title: 'Graph-It-Live: Set Workspace Folder',
+                title: 'Structure Graph: Set Workspace Folder',
             });
             if (!pick) {
                 return;
@@ -164,7 +164,7 @@ export function activate(context: vscode.ExtensionContext) {
             // The graph view Spider is initialized at extension startup, so a
             // window reload is required for it to analyze the new root.
             vscode.window.showInformationMessage(
-                `Graph-It-Live: MCP server switched to "${pick.folder.name}". Reload the window to update the graph view.`,
+                `Structure Graph: MCP server switched to "${pick.folder.name}". Reload the window to update the graph view.`,
                 'Reload Window'
             ).then(action => {
                 if (action === 'Reload Window') {

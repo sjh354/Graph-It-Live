@@ -15,7 +15,7 @@ export class WebviewManager {
   constructor(private readonly extensionUri: vscode.Uri) {}
 
   /**
-   * Configure webview options for the Graph-It-Live webview
+   * Configure webview options for the Structure Graph webview
    */
   public getWebviewOptions(): vscode.WebviewOptions {
     return {
@@ -44,7 +44,7 @@ export class WebviewManager {
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}'; img-src ${webview.cspSource} data:; worker-src blob:;">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Graph-It-Live</title>
+    <title>Structure Graph</title>
     <style>
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
         body { font-family: var(--vscode-font-family); }
