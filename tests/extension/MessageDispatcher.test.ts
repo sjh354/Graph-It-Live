@@ -40,6 +40,7 @@ describe("MessageDispatcher", () => {
       handleSelectSymbol: vi.fn(),
       sendGraphUpdate: vi.fn(),
       setViewMode: vi.fn(),
+      applyViewMode: vi.fn(),
       getViewMode: vi.fn().mockReturnValue("file"),
       getSelectedSymbolId: vi.fn().mockReturnValue(undefined),
       setSelectedSymbolId: vi.fn(),
@@ -132,6 +133,7 @@ describe("MessageDispatcher", () => {
       handleSelectSymbol: vi.fn(),
       sendGraphUpdate: vi.fn(),
       setViewMode: vi.fn(),
+      applyViewMode: vi.fn(),
       getViewMode: vi.fn().mockReturnValue("file"),
       getSelectedSymbolId: vi.fn().mockReturnValue(undefined),
       setSelectedSymbolId: vi.fn(),
@@ -162,6 +164,8 @@ describe("MessageDispatcher", () => {
       await dispatcher.handle({ command: "callGraphReady", nodeCount: 1, edgeCount: 0 });
       await dispatcher.handle({ command: "callGraphDepthChanged", depth: 2 });
       await dispatcher.handle({ command: "callGraphFilterChanged", filterType: "folder", value: "src", visible: false });
+      await dispatcher.handle({ command: "callGraphCopyReference", text: "node: /a.ts:x:1" });
+      await dispatcher.handle({ command: "switchViewMode", mode: "callgraph" });
       deps.getUnusedFilterActive.mockReturnValue(true);
       await dispatcher.handle({ command: "disableUnusedFilter" });
       await dispatcher.handle({ command: "enableUnusedFilter" });
@@ -177,7 +181,8 @@ describe("MessageDispatcher", () => {
       expect(deps.handleDrillDown).toHaveBeenCalledWith("/a.ts");
       expect(deps.updateGraph).toHaveBeenCalledOnce();
       expect(deps.toggleUnusedFilter).toHaveBeenCalledTimes(2);
-      expect(deps.handleCallGraphMessage).toHaveBeenCalledTimes(6);
+      expect(deps.handleCallGraphMessage).toHaveBeenCalledTimes(7);
+      expect(deps.applyViewMode).toHaveBeenCalledWith("callgraph");
       expect(deps.handleSelectSymbol).toHaveBeenCalledWith("/a.ts:x");
       expect(deps.handleCallGraphMessage).toHaveBeenCalledWith({ command: "callGraphMounted" });
       expect(deps.logger.debug).toHaveBeenCalled();

@@ -91,16 +91,18 @@ const LIGHT_THEME: ThemeColors = {
 };
 
 // ---------------------------------------------------------------------------
-// Node shape per symbol type
+// Symbol rendering: every symbol is an unlabelled circle (DESIGN 3.2). The kind
+// is still readable without text, from the border style.
 // ---------------------------------------------------------------------------
 
-const SYMBOL_SHAPES: ReadonlyArray<[string, string]> = [
-  ["class", "ellipse"],
-  ["function", "round-rectangle"],
-  ["method", "round-rectangle"],
-  ["variable", "diamond"],
-  ["interface", "hexagon"],
-  ["type", "rhomboid"],
+const SYMBOL_SIZE = 18;
+const ROOT_SIZE = 26;
+
+const SYMBOL_BORDERS: ReadonlyArray<[string, string]> = [
+  ["class", "double"],
+  ["interface", "dashed"],
+  ["type", "dotted"],
+  ["variable", "double"],
 ];
 
 // ---------------------------------------------------------------------------
@@ -132,9 +134,9 @@ const LANG_COLORS: ReadonlyArray<[string, string]> = [
  */
 export function buildCallGraphStylesheet(isDark = true): CyStylesheet[] {
   const t = isDark ? DARK_THEME : LIGHT_THEME;
-  const shapeStyles = SYMBOL_SHAPES.map(([symbolType, shape]) => ({
+  const borderStyles = SYMBOL_BORDERS.map(([symbolType, borderStyle]) => ({
     selector: `node[type="${symbolType}"]`,
-    style: { shape },
+    style: { "border-style": borderStyle },
   }));
 
   const langStyles = LANG_COLORS.flatMap(([lang, color]) => {
@@ -158,47 +160,50 @@ export function buildCallGraphStylesheet(isDark = true): CyStylesheet[] {
     // Base node style — use default z-ordering (auto compound depth).
     // Edges use z-index-compare:manual so they render AFTER all auto-depth
     // elements (i.e. on top of compound backgrounds).
+    // A symbol: a small, unlabelled circle. Its name lives in the detail panel
+    // and in `data(name)` for search and accessibility, never on the canvas.
     {
       selector: "node",
       style: {
-        label: "data(name)",
-        "text-valign": "center",
-        "text-halign": "center",
-        "font-size": "13px",
-        "font-weight": "bold",
-        "font-family":
-          "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
-        color: t.nodeText,
-        "text-outline-width": 2,
-        "text-outline-color": isDark ? UNKNOWN_COLOR : t.nodeTextOutline,
-        width: "auto",
-        height: "auto",
-        padding: "10px",
+        label: "",
+        shape: "ellipse",
+        width: SYMBOL_SIZE,
+        height: SYMBOL_SIZE,
         "border-width": 2,
         "border-color": UNKNOWN_COLOR,
         "background-color": UNKNOWN_COLOR,
+        "min-zoomed-font-size": 8,
       },
     },
     {
       selector: `node[type="interface"], node[type="type"]`,
       style: { "background-opacity": 0.15 },
     },
+    // Compounds keep their names: folders and files are what the user navigates by.
+    {
+      selector: `node[type = "compound"]`,
+      style: {
+        shape: "round-rectangle",
+        width: "auto",
+        height: "auto",
+        label: "data(label)",
+        "text-valign": "top",
+        "text-halign": "center",
+        "font-size": "11px",
+        "font-weight": "bold",
+        "font-family": "var(--vscode-font-family)",
+        color: t.parentLabel,
+        padding: "20px",
+      } as Record<string, unknown>,
+    },
     {
       selector: ":parent",
       style: {
-        shape: "round-rectangle",
         "background-opacity": COMPOUND_BG_OPACITY,
         "background-color": t.compoundBg,
         "border-style": "dashed",
         "border-color": t.compoundBorder,
         "border-width": 1,
-        "text-valign": "top",
-        "text-halign": "center",
-        "font-size": "11px",
-        "font-weight": "bold",
-        color: t.parentLabel,
-        label: "data(label)",
-        padding: "20px",
       } as Record<string, unknown>,
     },
     // Folder-level compound: prominent label with full path
@@ -335,19 +340,29 @@ export function buildCallGraphStylesheet(isDark = true): CyStylesheet[] {
         "z-index": 1000,
       },
     },
+    // Selected: a ring around the circle, not a colour change, so the language
+    // colour (and therefore the symbol's file) stays readable.
     {
       selector: "node:selected",
       style: {
-        "border-width": 3,
+        "underlay-color": t.selectionBorder,
+        "underlay-opacity": 0.45,
+        "underlay-padding": 7,
         "border-color": t.selectionBorder,
-        "border-style": "solid",
+        "border-width": 3,
       },
     },
     {
       selector: "edge:selected",
-      style: { width: 3 },
+      style: {
+        width: 3.5,
+        "line-color": t.selectionBorder,
+        "target-arrow-color": t.selectionBorder,
+      },
     },
-    ...shapeStyles,
+    // Everything unrelated to the selected node or edge is dimmed, not hidden.
+    { selector: ".dimmed", style: { opacity: 0.15 } },
+    ...borderStyles,
     ...langStyles,
     // Root override MUST come after langStyles — same CSS specificity,
     // so later position wins. This ensures the focal node is always
@@ -356,16 +371,14 @@ export function buildCallGraphStylesheet(isDark = true): CyStylesheet[] {
       selector: "node[?isRoot]",
       style: {
         "background-color": ROOT_COLOR,
+        width: ROOT_SIZE,
+        height: ROOT_SIZE,
         "border-width": 4,
         "border-style": "solid",
         "border-color": t.selectionBorder,
-        "font-weight": "bold",
-        color: "#1a1a1a",
-        "text-outline-color": ROOT_COLOR,
-        "text-outline-width": 2,
         "underlay-color": ROOT_COLOR,
         "underlay-opacity": 0.25,
-        "underlay-padding": 6,
+        "underlay-padding": 8,
       },
     },
   ];

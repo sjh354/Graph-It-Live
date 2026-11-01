@@ -69,6 +69,7 @@ export interface MessageDispatcherCallbacks {
   handleSelectSymbol(symbolId: string | undefined): Promise<void>;
   sendGraphUpdate(filePath: string, isRefresh?: boolean): Promise<void>;
   setViewMode(mode: "file" | "list" | "symbol"): Promise<void>;
+  applyViewMode(mode: "file" | "list" | "symbol" | "architecture" | "callgraph"): Promise<void>;
   getViewMode(): ViewMode;
   getSelectedSymbolId(): string | undefined;
   setSelectedSymbolId(symbolId: string | undefined): void;
@@ -301,6 +302,7 @@ export function createGraphProviderServiceContainer(
         handleSelectSymbol: options.callbacks.handleSelectSymbol,
         sendGraphUpdate: options.callbacks.sendGraphUpdate,
         setViewMode: options.callbacks.setViewMode,
+        applyViewMode: options.callbacks.applyViewMode,
         getViewMode: options.callbacks.getViewMode,
         getSelectedSymbolId: options.callbacks.getSelectedSymbolId,
         setSelectedSymbolId: options.callbacks.setSelectedSymbolId,

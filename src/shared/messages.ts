@@ -9,6 +9,7 @@ import type {
   ArchitectureWebviewCommand,
 } from "./architecture-types";
 import type {
+  CallGraphCopyReferenceCommand,
   CallGraphDepthChangedCommand,
   CallGraphFilterChangedCommand,
   CallGraphIndexingMessage,
@@ -151,7 +152,7 @@ export interface SwitchModeMessage {
 
 export interface SwitchViewModeMessage {
   command: "switchViewMode";
-  mode: "file" | "list" | "symbol" | "architecture";
+  mode: "file" | "list" | "symbol" | "architecture" | "callgraph";
 }
 
 export interface WebviewLogMessage {
@@ -248,6 +249,7 @@ export type WebviewToExtensionMessage =
   | DisableUnusedFilterMessage
   | SelectSymbolMessage
   | CallGraphOpenFileCommand
+  | CallGraphCopyReferenceCommand
   | CallGraphReadyCommand
   | CallGraphDepthChangedCommand
   | CallGraphFilterChangedCommand

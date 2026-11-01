@@ -26,6 +26,8 @@ interface MessageDispatcherDependencies {
   handleSelectSymbol(symbolId: string | undefined): Promise<void>;
   sendGraphUpdate(filePath: string, isRefresh?: boolean): Promise<void>;
   setViewMode(mode: "file" | "list" | "symbol"): Promise<void>;
+  /** Toolbar switch: file, list, symbol, architecture or the call graph. */
+  applyViewMode(mode: "file" | "list" | "symbol" | "architecture" | "callgraph"): Promise<void>;
   getViewMode(): ViewMode;
   getSelectedSymbolId(): string | undefined;
   setSelectedSymbolId(symbolId: string | undefined): void;
@@ -77,6 +79,9 @@ export class MessageDispatcher {
         switchMode: async (m) => {
           await this.handleSwitchMode(m);
         },
+        switchViewMode: async (m) => {
+          await this.deps.applyViewMode(m.mode);
+        },
         enableUnusedFilter: async () => {
           if (!deps.getUnusedFilterActive()) {
             await deps.toggleUnusedFilter();
@@ -99,6 +104,9 @@ export class MessageDispatcher {
           deps.handleCallGraphMessage?.(m);
         },
         callGraphSymbolFocus: async (m) => {
+          deps.handleCallGraphMessage?.(m);
+        },
+        callGraphCopyReference: async (m) => {
           deps.handleCallGraphMessage?.(m);
         },
         callGraphReady: async (m) => {

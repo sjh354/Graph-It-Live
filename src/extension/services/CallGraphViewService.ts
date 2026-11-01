@@ -109,6 +109,8 @@ export class CallGraphViewService implements vscode.Disposable, ICallGraphQueryS
   private saveListener: vscode.Disposable | null = null;
   /** Workspace root for which the DB has been fully indexed (null = not indexed yet). */
   private workspaceIndexedRoot: string | null = null;
+  /** Workspace folder name, included in the detail panel's copyable reference. */
+  private projectName: string | undefined;
   private cacheTask: { root: string; cache: Promise<IndexCache> } | null = null;
   /** De-duplication guard: promise for an in-flight workspace index pass. */
   private indexWorkspacePromise: Promise<void> | null = null;
@@ -251,7 +253,16 @@ export class CallGraphViewService implements vscode.Disposable, ICallGraphQueryS
 
   private async showInternal(): Promise<void> {
     if (this.disposed) return;
-    const editor = vscode.window.activeTextEditor;
+    // The toolbar lives in the graph tab, so the graph itself may hold the
+    // focus. Fall back to the editor of the file already being explored.
+    const editor =
+      vscode.window.activeTextEditor ??
+      vscode.window.visibleTextEditors.find(
+        (candidate) =>
+          this.currentFilePath !== null &&
+          normalizePath(candidate.document.uri.fsPath) === this.currentFilePath,
+      ) ??
+      vscode.window.visibleTextEditors[0];
     if (!editor) {
       await vscode.window.showInformationMessage(
         "Graph-It-Live: Open a source file and position the cursor on a symbol first.",
@@ -277,6 +288,7 @@ export class CallGraphViewService implements vscode.Disposable, ICallGraphQueryS
       const workspaceRoot = normalizePath(
         vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? path.dirname(filePath),
       );
+      this.projectName = path.basename(workspaceRoot);
       const indexer = await this.ensureIndexer();
       if (this.disposed) return;
       const extractor = this.ensureExtractor(workspaceRoot);
@@ -560,6 +572,7 @@ export class CallGraphViewService implements vscode.Disposable, ICallGraphQueryS
       compounds: result.compounds,
       depth: result.depth,
       hiddenNodeCount: result.hiddenNodeCount,
+      projectName: this.projectName,
       timestamp: result.timestamp,
     });
   }
@@ -806,6 +819,11 @@ export class CallGraphViewService implements vscode.Disposable, ICallGraphQueryS
       this.trackOperation(this.handleSymbolFocus(msg)).catch((err: unknown) => {
         this.log(`[CallGraph] symbolFocus error: ${errorMessage(err)}`);
       });
+    } else if (msg.command === "callGraphCopyReference") {
+      void vscode.env.clipboard.writeText(msg.text).then(
+        () => vscode.window.setStatusBarMessage("Structure Graph: reference copied", 2000),
+        (err: unknown) => this.log(`[CallGraph] copy error: ${errorMessage(err)}`),
+      );
     } else if (msg.command === "callGraphMounted") {
       // Webview message listener is now active — replay any buffered graph data
       // that was posted before the listener was registered (race on first open).
@@ -888,21 +906,14 @@ export class CallGraphViewService implements vscode.Disposable, ICallGraphQueryS
   }
 
   /**
-   * T038: Handle symbol-focus click.
-   * (a) Navigate VS Code to the symbol definition.
-   * (b) Re-query the call graph centred on the clicked node and push it to the webview.
+   * Centre the graph on a symbol ("Centre on symbol" in the detail panel).
+   * A plain click selects only, so this is the explicit query + re-centre;
+   * it deliberately does not open the file (DESIGN 3.2).
    */
   private async handleSymbolFocus(msg: CallGraphSymbolFocusCommand): Promise<void> {
-    // Navigate to source
-    await this.handleOpenFile({
-      command: "callGraphOpenFile",
-      uri: msg.path,
-      line: msg.startLine,
-      character: msg.startCol,
-    });
     if (this.disposed) return;
 
-    // Re-query the neighbourhood with the clicked node as new root
+    // Re-query the neighbourhood with the selected node as new root
     const indexer = this.indexer;
     if (!indexer) return;
 
@@ -929,6 +940,30 @@ export class CallGraphViewService implements vscode.Disposable, ICallGraphQueryS
         this.scheduleRefresh(savedPath, doc.languageId, workspaceRoot);
       }
     });
+  }
+
+  /**
+   * `id` embeds the symbol's start line (`path:name:line`), which an edit above
+   * it changes. When the exact id is gone, look the symbol up by path and name.
+   */
+  private resolveIndexedRootId(indexer: CallGraphIndexer, rootId: string): string {
+    const db = indexer.getDb();
+    const exists = db.exec("SELECT 1 FROM nodes WHERE id = ? LIMIT 1", [rootId]);
+    if (exists[0]?.values?.length) return rootId;
+
+    const lastColon = rootId.lastIndexOf(":");
+    const beforeLine = lastColon > 0 ? rootId.slice(0, lastColon) : "";
+    const nameColon = beforeLine.lastIndexOf(":");
+    if (nameColon <= 0) return rootId;
+
+    const rows = db.exec(
+      "SELECT id FROM nodes WHERE path = ? AND name = ? ORDER BY start_line LIMIT 1",
+      [beforeLine.slice(0, nameColon), beforeLine.slice(nameColon + 1)],
+    );
+    const found = rows[0]?.values?.[0]?.[0];
+    if (typeof found !== "string") return rootId;
+    this.log(`[CallGraph] Root moved (${rootId} → ${found}); keeping the graph on the same symbol`);
+    return found;
   }
 
   private scheduleRefresh(filePath: string, languageId: string, workspaceRoot: string): void {
@@ -967,9 +1002,14 @@ export class CallGraphViewService implements vscode.Disposable, ICallGraphQueryS
     // stubs; this also recomputes the cycle flags of the whole graph.
     indexer.resolveExternalEdges();
 
-    // Re-query using the saved root symbol and re-send the graph
-    const rootId = this.currentRootSymbolId;
+    // Re-query using the saved root symbol and re-send the graph. A save can
+    // shift the root's start line, and the id embeds it: fall back to the same
+    // symbol in the same file rather than showing an empty graph.
+    const rootId = this.currentRootSymbolId
+      ? this.resolveIndexedRootId(indexer, this.currentRootSymbolId)
+      : null;
     if (rootId) {
+      this.currentRootSymbolId = rootId;
       const result = queryNeighbourhood(indexer.getDb(), rootId, this.currentDepth);
       this.currentNeighbourhoodPaths = new Set(result.nodes.map((n) => n.path));
       this.sendGraphToWebview(result);

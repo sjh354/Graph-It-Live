@@ -30,9 +30,10 @@ export class WebviewManager {
    * Generate HTML content for the webview
    * 
    * @param webview - The webview instance to generate HTML for
+   * @param host - Where the webview lives; the editor tab shows the mode toolbar.
    * @returns HTML string with embedded scripts and styles
    */
-  public getHtmlForWebview(webview: vscode.Webview): string {
+  public getHtmlForWebview(webview: vscode.Webview, host: "editor" | "sidebar" = "sidebar"): string {
     const scriptUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this.extensionUri, "dist", "webview.js"),
     );
@@ -74,7 +75,7 @@ export class WebviewManager {
         .react-flow__attribution { display: none; }
     </style>
 </head>
-<body>
+<body data-structure-graph-host="${host}">
     <div id="root"></div>
     <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>

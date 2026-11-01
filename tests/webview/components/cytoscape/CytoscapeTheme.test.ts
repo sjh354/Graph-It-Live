@@ -55,12 +55,34 @@ describe("CytoscapeTheme", () => {
     expect(styleOf(buildArchitectureStylesheet(colors, "vscode-high-contrast-light"), "node[hue]")).toMatchObject({ "background-opacity": 0 });
   });
 
-  it("builds distinct call graph palettes for dark and light themes", () => {
-    const dark = styleOf(buildCallGraphStylesheet(true), "node");
-    const light = styleOf(buildCallGraphStylesheet(false), "node");
+  it("draws symbols as unlabelled circles and keeps compound names", () => {
+    const sheet = buildCallGraphStylesheet();
+    const symbol = styleOf(sheet, "node");
 
-    expect(dark?.color).toBe("#ffffff");
-    expect(light?.color).toBe("#1a1a1a");
+    expect(symbol).toMatchObject({ label: "", shape: "ellipse", width: 18, height: 18 });
+    expect(symbol).not.toHaveProperty("color");
+    // Folders and files are still navigable by name.
+    expect(styleOf(sheet, 'node[type = "compound"]')).toMatchObject({
+      label: "data(label)",
+      shape: "round-rectangle",
+      width: "auto",
+    });
+  });
+
+  it("encodes the symbol kind in the border style, since circles carry no text", () => {
+    const sheet = buildCallGraphStylesheet();
+
+    expect(styleOf(sheet, 'node[type="class"]')).toEqual({ "border-style": "double" });
+    expect(styleOf(sheet, 'node[type="interface"]')).toEqual({ "border-style": "dashed" });
+    expect(styleOf(sheet, 'node[type="type"]')).toEqual({ "border-style": "dotted" });
+  });
+
+  it("builds distinct call graph palettes for dark and light themes", () => {
+    const dark = styleOf(buildCallGraphStylesheet(true), 'node[type = "compound"]');
+    const light = styleOf(buildCallGraphStylesheet(false), 'node[type = "compound"]');
+
+    expect(dark?.color).toBe("#cccccc");
+    expect(light?.color).toBe("#555555");
     expect(styleOf(buildCallGraphStylesheet(), 'node[lang="javascript"]')).toBeDefined();
   });
 });

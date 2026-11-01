@@ -29,6 +29,7 @@ import { ArchitectureGraph } from "./components/architecture/ArchitectureGraph";
 import { CytoscapeGraph } from "./components/cytoscape/CytoscapeGraph";
 import ReactFlowGraph from "./components/ReactFlowGraph";
 import SymbolCardView from "./components/SymbolCardView";
+import { ViewModeToolbar, type ToolbarMode } from "./components/ViewModeToolbar";
 import { mergeGraphDataUnion } from "./utils/graphMerge";
 import { normalizePath } from "./utils/path";
 import {
@@ -549,9 +550,24 @@ const App: React.FC = () => {
     } else if (mode === "symbol") {
       setViewMode("symbol");
       setSymbolViewMode("graph");
-    } else if (mode === "file" || mode === "architecture") {
+    } else if (mode === "file" || mode === "architecture" || mode === "callgraph") {
       setViewMode(mode);
     }
+  }, []);
+
+  // The editor tab has no view title, so the mode switch lives in the webview
+  // (DESIGN 3.1). The extension re-queries the data for the chosen mode.
+  const handleToolbarMode = React.useCallback((mode: ToolbarMode) => {
+    if (mode === "list") {
+      setViewMode("list");
+      setSymbolViewMode("list");
+    } else if (mode === "symbol") {
+      setViewMode("symbol");
+      setSymbolViewMode("atomic");
+    } else {
+      setViewMode(mode);
+    }
+    vscode?.postMessage({ command: "switchViewMode", mode });
   }, []);
 
   // Handle expand all toggle
@@ -830,8 +846,8 @@ const App: React.FC = () => {
     };
   }, [expandAll]);
 
-  // The architecture view is workspace-wide: it needs no file graph.
-  if (!graphData && viewMode !== "architecture") {
+  // The architecture and call graph views are independent of the file graph.
+  if (!graphData && viewMode !== "architecture" && viewMode !== "callgraph") {
     return (
       <div
         style={{
@@ -882,9 +898,17 @@ const App: React.FC = () => {
     );
   }
 
+  const isEditorTab =
+    typeof document !== "undefined" &&
+    document.body.dataset.structureGraphHost === "editor";
+
   return (
     <ErrorBoundary>
-      <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
+      <div style={{ width: "100vw", height: "100vh", display: "flex", flexDirection: "column" }}>
+        {isEditorTab && (
+          <ViewModeToolbar mode={viewMode} onSelect={handleToolbarMode} />
+        )}
+        <div style={{ position: "relative", flex: "1 1 auto", minHeight: 0 }}>
         {emptyStateMessage && viewMode !== "architecture" && (
           <div
             style={{
@@ -1034,6 +1058,7 @@ const App: React.FC = () => {
         {viewMode === "architecture" && (
           <ArchitectureGraph postMessage={(msg) => vscode?.postMessage(msg)} />
         )}
+        </div>
       </div>
     </ErrorBoundary>
   );

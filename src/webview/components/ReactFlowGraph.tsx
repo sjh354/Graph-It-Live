@@ -999,7 +999,7 @@ const ReactFlowGraphContent: React.FC<ReactFlowGraphProps> = ({
     <div
       ref={containerRef}
       onKeyDownCapture={mode === 'file' ? handleFileKeyDown : undefined}
-      style={{ width: "100%", height: "100vh", position: "relative" }}
+      style={{ width: "100%", height: "100%", position: "relative" }}
     >
       <ReactFlow
         nodes={mode === 'file' ? presentation.nodes : nodes}

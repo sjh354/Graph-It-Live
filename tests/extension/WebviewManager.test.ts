@@ -72,8 +72,14 @@ describe("WebviewManager", () => {
       expect(html).toContain("<!DOCTYPE html>");
       expect(html).toContain("<html lang=\"en\">");
       expect(html).toContain("<head>");
-      expect(html).toContain("<body>");
+      expect(html).toContain('<body data-structure-graph-host="sidebar">');
       expect(html).toContain("</html>");
+    });
+
+    it("marks the editor tab so the webview can show its mode toolbar", () => {
+      const html = webviewManager.getHtmlForWebview(mockWebview, "editor");
+
+      expect(html).toContain('<body data-structure-graph-host="editor">');
     });
 
     it("should include Content Security Policy meta tag", () => {

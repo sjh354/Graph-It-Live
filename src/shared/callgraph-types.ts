@@ -98,6 +98,8 @@ export interface ShowCallGraphMessage {
   depth: number;
   /** Reachable symbols omitted to keep the layout responsive (absent = none) */
   hiddenNodeCount?: number;
+  /** Workspace folder name, shown in the detail panel's reference copy */
+  projectName?: string;
   /** Unix ms — webview discards messages older than the last received */
   timestamp: number;
 }
@@ -137,9 +139,8 @@ export interface CallGraphOpenFileCommand {
 }
 
 /**
- * Sent when the user clicks on a symbol node in the Cytoscape graph.
- * The extension (a) navigates to the symbol's definition AND
- * (b) re-queries the call graph centred on the clicked node.
+ * Sent when the user asks to centre the graph on a symbol (detail panel action).
+ * A plain click only selects: it neither navigates nor re-centres.
  */
 export interface CallGraphSymbolFocusCommand {
   command: "callGraphSymbolFocus";
@@ -202,11 +203,22 @@ export interface CallGraphDepthChangedCommand {
   depth: number;
 }
 
+/**
+ * Sent when the user copies the selected symbol's reference (project, node id,
+ * path, symbol, position, analysis version) from the detail panel.
+ * The extension owns the clipboard so the webview needs no clipboard permission.
+ */
+export interface CallGraphCopyReferenceCommand {
+  command: "callGraphCopyReference";
+  text: string;
+}
+
 /** Discriminated union of all webview → extension messages for this feature */
 export type CallGraphWebviewCommand =
   | CallGraphMountedCommand
   | CallGraphOpenFileCommand
   | CallGraphSymbolFocusCommand
+  | CallGraphCopyReferenceCommand
   | CallGraphReadyCommand
   | CallGraphFilterChangedCommand
   | CallGraphDepthChangedCommand;

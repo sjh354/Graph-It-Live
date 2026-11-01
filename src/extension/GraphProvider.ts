@@ -294,6 +294,15 @@ export class GraphProvider implements vscode.WebviewViewProvider {
         handleSelectSymbol: this.handleSelectSymbol.bind(this),
         sendGraphUpdate: this._sendGraphUpdate.bind(this),
         setViewMode: (mode) => this._stateManager.setViewMode(mode),
+        applyViewMode: async (mode) => {
+          switch (mode) {
+            case "file": await this.setViewModeFile(); break;
+            case "list": await this.setViewModeList(); break;
+            case "symbol": await this.setViewModeSymbol(); break;
+            case "architecture": await this.setViewModeArchitecture(); break;
+            case "callgraph": this.openCallGraph(); break;
+          }
+        },
         getViewMode: () => this._stateManager.viewMode,
         getSelectedSymbolId: () => this._stateManager.selectedSymbolId,
         setSelectedSymbolId: (symbolId) => {
@@ -905,14 +914,18 @@ export class GraphProvider implements vscode.WebviewViewProvider {
     _context?: vscode.WebviewViewResolveContext,
     _token?: vscode.CancellationToken,
   ) {
-    if ("show" in webviewView) this._sidebarView = webviewView;
+    const isSidebarView = "show" in webviewView;
+    if (isSidebarView) this._sidebarView = webviewView;
     this._view = this._editorPanel ?? webviewView;
 
     // Share the active webview with CallGraphViewService so it can postMessage
     this._callGraphViewService?.setSidebarWebview(this._view);
 
     webviewView.webview.options = this.webviewManager.getWebviewOptions();
-    webviewView.webview.html = this.webviewManager.getHtmlForWebview(webviewView.webview);
+    webviewView.webview.html = this.webviewManager.getHtmlForWebview(
+      webviewView.webview,
+      isSidebarView ? "sidebar" : "editor",
+    );
 
     const messageListener = webviewView.webview.onDidReceiveMessage(
       async (message: WebviewToExtensionMessage) => {
@@ -1132,6 +1145,12 @@ export class GraphProvider implements vscode.WebviewViewProvider {
     log.info("Switching to call graph view mode");
     await this._stateManager.setViewMode("callgraph");
     await this._updateViewModeContext();
+  }
+
+  /** Toolbar entry: render the call graph around the symbol under the cursor. */
+  public openCallGraph(): void {
+    void this.setViewModeCallgraph();
+    void this._callGraphViewService?.show();
   }
 
   /**

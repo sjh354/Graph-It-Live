@@ -16,9 +16,11 @@
 import cytoscape from "cytoscape";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import type {
+  CallGraphCopyReferenceCommand,
   CallGraphDepthChangedCommand,
   CallGraphExtensionMessage,
   CallGraphMountedCommand,
+  CallGraphOpenFileCommand,
   CallGraphReadyCommand,
   CallGraphSymbolFocusCommand,
   SerializedCallEdge,
@@ -27,6 +29,8 @@ import type {
   ShowCallGraphMessage,
   SymbolType,
 } from "../../../shared/callgraph-types";
+import { CallGraphDetail } from "./CallGraphDetail";
+import { aliasKey, type Point, planPositions } from "./CytoscapeLayout";
 import { buildCallGraphStylesheet } from "./CytoscapeTheme";
 import { GraphLegend } from "./GraphLegend";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -177,6 +181,8 @@ function buildElements(
         // (the string "false" is truthy, which styled every edge as cyclic/red)
         isCyclic: e.isCyclic ? 1 : 0,
         direction: e.direction,
+        // Line in the source file the relation occurs on (double-click opens it)
+        sourceLine: e.sourceLine,
         // Call order label (1-based) — only set for CALLS edges
         ...(order !== undefined && { callOrder: order }),
       },
@@ -200,6 +206,54 @@ function triggerCanvasRepaint(cy: cytoscape.Core): void {
   requestAnimationFrame(() => {
     cy.panBy({ x: 0, y: 0 });
     cy.forceRender();
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Selection — relations are emphasised by dimming what is unrelated, which
+// keeps every symbol in place and never hides the user's context.
+// ---------------------------------------------------------------------------
+
+function clearSelection(cy: cytoscape.Core): void {
+  cy.elements().unselect();
+  cy.elements().removeClass("dimmed");
+}
+
+/** Keep the selected symbol, its one-hop relations and the root readable. */
+function dimUnrelated(cy: cytoscape.Core, keepNodeIds: Set<string>): void {
+  const rootIds = cy.nodes("[?isRoot]").map((node) => node.id());
+  for (const id of rootIds) keepNodeIds.add(id);
+  cy.nodes("[type != 'compound']").forEach((node) => {
+    if (!keepNodeIds.has(node.id())) node.addClass("dimmed");
+  });
+}
+
+function selectNode(cy: cytoscape.Core, nodeId: string): void {
+  clearSelection(cy);
+  const node = cy.getElementById(nodeId);
+  if (node.empty() || !node.isNode()) return;
+  node.select();
+
+  const keep = new Set<string>([nodeId]);
+  const incident = node.connectedEdges();
+  incident.forEach((edge) => {
+    keep.add(edge.source().id());
+    keep.add(edge.target().id());
+  });
+  dimUnrelated(cy, keep);
+  cy.edges().forEach((edge) => {
+    if (!incident.contains(edge)) edge.addClass("dimmed");
+  });
+}
+
+function selectEdge(cy: cytoscape.Core, edgeId: string): void {
+  clearSelection(cy);
+  const edge = cy.getElementById(edgeId);
+  if (edge.empty() || !edge.isEdge()) return;
+  edge.select();
+  dimUnrelated(cy, new Set([edge.source().id(), edge.target().id()]));
+  cy.edges().forEach((candidate) => {
+    if (candidate.id() !== edgeId) candidate.addClass("dimmed");
   });
 }
 
@@ -263,6 +317,23 @@ export function CytoscapeGraph({ onReady, postMessage }: Readonly<CytoscapeGraph
   // Depth slider state — synchronised with extension on each showCallGraph message
   const [currentDepth, setCurrentDepth] = useState(1);
 
+  // Detail panel: what is selected, and the data it reads (DESIGN 3.2).
+  const [graphNodes, setGraphNodes] = useState<SerializedCallNode[]>([]);
+  const [graphEdges, setGraphEdges] = useState<SerializedCallEdge[]>([]);
+  const [rootSymbolId, setRootSymbolId] = useState("");
+  const [projectName, setProjectName] = useState<string | undefined>(undefined);
+  const [generatedAt, setGeneratedAt] = useState<number | undefined>(undefined);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>(undefined);
+  const [selectedEdgeId, setSelectedEdgeId] = useState<string | undefined>(undefined);
+
+  // Positions survive save-driven refreshes and depth changes; a new root or an
+  // explicit re-layout rebuilds them (DESIGN 3.2).
+  const positionsRef = useRef<Map<string, Point>>(new Map());
+  const viewportRef = useRef<{ zoom: number; pan: Point } | null>(null);
+  const lastRootRef = useRef<string | null>(null);
+  const nodesRef = useRef<SerializedCallNode[]>([]);
+  nodesRef.current = graphNodes;
+
   // Keep latest onReady in a ref to avoid stale closure in the effect
   const onReadyRef = useRef(onReady);
   onReadyRef.current = onReady;
@@ -301,21 +372,74 @@ export function CytoscapeGraph({ onReady, postMessage }: Readonly<CytoscapeGraph
     cy.autoungrabify(false);
     cy.autounselectify(false);
 
-    // T038: Node click → (a) open source file AND (b) recenter graph on clicked symbol
+    // A click selects and opens the detail panel. Code navigation and
+    // re-centring are explicit actions (double-click and the panel buttons),
+    // so dragging a symbol never moves the editor (DESIGN 3.2).
+    let grabStart: { id: string; x: number; y: number } | null = null;
+    cy.on("grab", "node", (event) => {
+      const node = event.target as cytoscape.NodeSingular;
+      grabStart = { id: node.id(), x: node.position().x, y: node.position().y };
+    });
+
+    const draggedSinceGrab = (node: cytoscape.NodeSingular): boolean => {
+      const start = grabStart;
+      grabStart = null;
+      if (!start || start.id !== node.id()) return false;
+      const now = node.position();
+      return Math.abs(now.x - start.x) > 1 || Math.abs(now.y - start.y) > 1;
+    };
+
     cy.on("tap", "node[type != 'compound']", (event) => {
       const node = event.target as cytoscape.NodeSingular;
-      const cmd: CallGraphSymbolFocusCommand = {
-        command: "callGraphSymbolFocus",
-        nodeId: node.data("id") as string,
-        path: node.data("path") as string,
-        startLine: node.data("startLine") as number,
-        startCol: node.data("startCol") as number,
+      if (draggedSinceGrab(node)) return;
+      const nodeId = node.id();
+      selectNode(cy, nodeId);
+      setSelectedNodeId(nodeId);
+      setSelectedEdgeId(undefined);
+    });
+
+    cy.on("dbltap", "node[type != 'compound']", (event) => {
+      const node = event.target as cytoscape.NodeSingular;
+      const open: CallGraphOpenFileCommand = {
+        command: "callGraphOpenFile",
+        uri: node.data("path") as string,
+        line: node.data("startLine") as number,
+        character: node.data("startCol") as number,
       };
       try {
-        postMessageRef.current(cmd);
+        postMessageRef.current(open);
       } catch {
         // postMessage not available outside webview (e.g., unit tests)
       }
+    });
+
+    cy.on("tap", "edge", (event) => {
+      const edge = event.target as cytoscape.EdgeSingular;
+      selectEdge(cy, edge.id());
+      setSelectedEdgeId(edge.id());
+      setSelectedNodeId(undefined);
+    });
+
+    cy.on("dbltap", "edge", (event) => {
+      const edge = event.target as cytoscape.EdgeSingular;
+      const open: CallGraphOpenFileCommand = {
+        command: "callGraphOpenFile",
+        uri: edge.source().data("path") as string,
+        line: edge.data("sourceLine") as number,
+        character: 0,
+      };
+      try {
+        postMessageRef.current(open);
+      } catch {
+        // postMessage not available outside webview (e.g., unit tests)
+      }
+    });
+
+    cy.on("tap", (event) => {
+      if (event.target !== cy) return; // nodes and edges have their own handlers
+      clearSelection(cy);
+      setSelectedNodeId(undefined);
+      setSelectedEdgeId(undefined);
     });
 
     // File-compound click → open file (no graph recenter)
@@ -453,6 +577,103 @@ export function CytoscapeGraph({ onReady, postMessage }: Readonly<CytoscapeGraph
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
+  /** Remember where the user left every node and the current viewport. */
+  function rememberLayout(cy: cytoscape.Core): void {
+    cy.nodes().forEach((node) => {
+      const position = { x: node.position().x, y: node.position().y };
+      positionsRef.current.set(node.id(), position);
+      const path = node.data("path");
+      const name = node.data("name");
+      if (typeof path === "string" && typeof name === "string") {
+        positionsRef.current.set(aliasKey(path, name), position);
+      }
+    });
+    viewportRef.current = { zoom: cy.zoom(), pan: { ...cy.pan() } };
+  }
+
+  function reportRendered(cy: cytoscape.Core): void {
+    const nodeCount = cy.nodes().not("[type='compound']").length;
+    const edgeCount = cy.edges().length;
+    onReadyRef.current?.(nodeCount, edgeCount);
+    const readyCmd: CallGraphReadyCommand = { command: "callGraphReady", nodeCount, edgeCount };
+    try {
+      postMessageFn(readyCmd);
+    } catch {
+      // postMessage not available outside webview (e.g., unit tests)
+    }
+  }
+
+  /** fcose rebuild: a new root, an explicit re-layout or the first render. */
+  function runFullLayout(cy: cytoscape.Core): void {
+    if (layoutTimerRef.current !== null) {
+      clearTimeout(layoutTimerRef.current);
+      layoutTimerRef.current = null;
+    }
+    if (safetyTimerRef.current !== null) {
+      clearTimeout(safetyTimerRef.current);
+      safetyTimerRef.current = null;
+    }
+
+    // fcose is synchronous and blocks the whole thread on large graphs, so the
+    // overlay is painted first and layout.run() is deferred one frame.
+    setIsLoading(true);
+    setLoadingMessage("Calculating layout…");
+
+    const layout = cy.layout({
+      name: "fcose",
+      animate: false,
+      randomize: true,
+      quality: "default",
+      nodeSeparation: 220,
+      idealEdgeLength: 220,
+      edgeElasticity: () => 0.45,
+      gravity: 0.15,
+      gravityCompound: 1.5,
+      gravityRange: 3.8,
+      numIter: 2500,
+      packComponents: true,
+      tilingPaddingVertical: 60,
+      tilingPaddingHorizontal: 60,
+    } as cytoscape.LayoutOptions);
+
+    safetyTimerRef.current = setTimeout(() => {
+      safetyTimerRef.current = null;
+      setIsLoading(false);
+    }, 15000);
+
+    layout.on("layoutstop", () => {
+      if (safetyTimerRef.current !== null) {
+        clearTimeout(safetyTimerRef.current);
+        safetyTimerRef.current = null;
+      }
+
+      cy.fit(undefined, 60);
+      cy.style().update();
+      triggerCanvasRepaint(cy);
+      setIsLoading(false);
+      rememberLayout(cy);
+
+      // Safety retry: the container may still have been sizing during the run.
+      if (postLayoutResizeTimerRef.current !== null) {
+        clearTimeout(postLayoutResizeTimerRef.current);
+      }
+      postLayoutResizeTimerRef.current = setTimeout(() => {
+        postLayoutResizeTimerRef.current = null;
+        if (!cyRef.current) return;
+        cyRef.current.resize();
+        cyRef.current.fit(undefined, 60);
+        triggerCanvasRepaint(cyRef.current);
+      }, 500);
+
+      reportRendered(cy);
+    });
+
+    layoutTimerRef.current = setTimeout(() => {
+      layoutTimerRef.current = null;
+      layout.run();
+    }, 20);
+  }
+
   function handleShowCallGraph(msg: ShowCallGraphMessage): void {
     const cy = cyRef.current;
     if (!cy) return;
@@ -465,6 +686,12 @@ export function CytoscapeGraph({ onReady, postMessage }: Readonly<CytoscapeGraph
       cy.elements().remove();
       setGraphNodeTypes([]);
       setGraphFolders([]);
+      setGraphNodes([]);
+      setGraphEdges([]);
+      setSelectedNodeId(undefined);
+      setSelectedEdgeId(undefined);
+      positionsRef.current.clear();
+      lastRootRef.current = null;
       return;
     }
 
@@ -474,6 +701,39 @@ export function CytoscapeGraph({ onReady, postMessage }: Readonly<CytoscapeGraph
     if (msg.depth !== undefined) {
       setCurrentDepth(msg.depth);
     }
+
+    // A new root is a new graph: rebuild the layout. Anything else (save,
+    // depth slider, filter) keeps the user's positions (DESIGN 3.2).
+    const previousRoot = lastRootRef.current;
+    const rootChanged = previousRoot !== msg.rootSymbolId;
+    if (!rootChanged) {
+      rememberLayout(cy);
+    } else {
+      positionsRef.current.clear();
+      viewportRef.current = null;
+    }
+
+    // A pending layout from the previous message must not run on this data.
+    if (layoutTimerRef.current !== null) {
+      clearTimeout(layoutTimerRef.current);
+      layoutTimerRef.current = null;
+    }
+    if (safetyTimerRef.current !== null) {
+      clearTimeout(safetyTimerRef.current);
+      safetyTimerRef.current = null;
+    }
+    if (postLayoutResizeTimerRef.current !== null) {
+      clearTimeout(postLayoutResizeTimerRef.current);
+      postLayoutResizeTimerRef.current = null;
+    }
+
+    setGraphNodes(msg.nodes);
+    setGraphEdges(msg.edges);
+    setRootSymbolId(msg.rootSymbolId);
+    setProjectName(msg.projectName);
+    setGeneratedAt(msg.timestamp);
+    setSelectedNodeId(undefined);
+    setSelectedEdgeId(undefined);
 
     // Add nodes/compounds first (batch), then edges outside the batch so they
     // render on top of compound backgrounds (fixes invisible-edges-on-first-open).
@@ -499,101 +759,63 @@ export function CytoscapeGraph({ onReady, postMessage }: Readonly<CytoscapeGraph
     hiddenFiltersRef.current = new Set();
     setHiddenFilters(new Set());
 
-    // Cancel any layout timer still pending from a previous showCallGraph
-    // to avoid running two layouts on the same graph data.
-    if (layoutTimerRef.current !== null) {
-      clearTimeout(layoutTimerRef.current);
-      layoutTimerRef.current = null;
-    }
-    // Cancel any safety timer from a previous layout cycle.
-    if (safetyTimerRef.current !== null) {
-      clearTimeout(safetyTimerRef.current);
-      safetyTimerRef.current = null;
+    lastRootRef.current = msg.rootSymbolId;
+
+    if (rootChanged) {
+      runFullLayout(cy);
+      return;
     }
 
-    // Show a "Calculating layout…" overlay while fcose runs.
-    // fcose is synchronous and blocks the entire browser thread for several
-    // seconds on large graphs — setting isLoading=true here and deferring
-    // layout.run() one frame lets React paint the overlay BEFORE fcose blocks.
-    setIsLoading(true);
-    setLoadingMessage("Calculating layout…");
-
-    const layout = cy.layout({
-      name: "fcose",
-      animate: false,
-      randomize: true,
-      quality: "default",
-      nodeSeparation: 220,
-      idealEdgeLength: 220,
-      edgeElasticity: () => 0.45,
-      gravity: 0.15,
-      gravityCompound: 1.5,
-      gravityRange: 3.8,
-      numIter: 2500,
-      packComponents: true,
-      tilingPaddingVertical: 60,
-      tilingPaddingHorizontal: 60,
-    } as cytoscape.LayoutOptions);
-
-    // Safety net: if layoutstop never fires (e.g. destroyed Cytoscape instance
-    // or rapid component teardown while layout timer is pending), clear the
-    // loading overlay after 15 s to avoid permanently blocking interaction.
-    safetyTimerRef.current = setTimeout(() => {
-      safetyTimerRef.current = null;
-      setIsLoading(false);
-    }, 15000);
-
-    // Register layoutstop BEFORE running to avoid missing the event on fast graphs.
-    layout.on("layoutstop", () => {
-      // Disarm the safety net — layoutstop fired normally.
-      if (safetyTimerRef.current !== null) {
-        clearTimeout(safetyTimerRef.current);
-        safetyTimerRef.current = null;
-      }
-
-      cy.fit(undefined, 60);
-      cy.style().update();
-      triggerCanvasRepaint(cy);
-
-      // Clear loading overlay now that the layout (and canvas repaint) is complete.
-      setIsLoading(false);
-
-      // Safety retry: if the container was still sizing during the layout run
-      // (VS Code sidebar animation), a deferred resize + fit corrects it.
-      if (postLayoutResizeTimerRef.current !== null) {
-        clearTimeout(postLayoutResizeTimerRef.current);
-      }
-      postLayoutResizeTimerRef.current = setTimeout(() => {
-        postLayoutResizeTimerRef.current = null;
-        if (!cyRef.current) return;
-        cyRef.current.resize();
-        cyRef.current.fit(undefined, 60);
-        triggerCanvasRepaint(cyRef.current);
-      }, 500);
-
-      const nodeCount = cy.nodes().not("[type='compound']").length;
-      const edgeCount = cy.edges().length;
-
-      onReadyRef.current?.(nodeCount, edgeCount);
-
-      const readyCmd: CallGraphReadyCommand = {
-        command: "callGraphReady",
-        nodeCount,
-        edgeCount,
-      };
-      try {
-        postMessageFn(readyCmd);
-      } catch {
-        // postMessage not available outside webview (e.g., unit tests)
+    // Same root: keep every known position, place newly reachable symbols
+    // beside their neighbours, and restore the viewport instead of re-fitting.
+    const planned = planPositions(
+      positionsRef.current,
+      msg.nodes,
+      msg.edges.map((edge) => ({ sourceId: edge.sourceId, targetId: edge.targetId })),
+    );
+    cy.batch(() => {
+      for (const [id, position] of planned) {
+        const element = cy.getElementById(id);
+        if (element.nonempty()) element.position(position);
       }
     });
+    cy.layout({ name: "preset", fit: false } as cytoscape.LayoutOptions).run();
+    if (viewportRef.current) {
+      cy.viewport(viewportRef.current);
+    } else {
+      cy.fit(undefined, 60);
+    }
+    setIsLoading(false);
+    cy.style().update();
+    triggerCanvasRepaint(cy);
+    rememberLayout(cy);
+    reportRendered(cy);
+  }
 
-    // Defer layout.run() by one frame so React can paint the loading overlay
-    // before fcose monopolises the thread.
-    layoutTimerRef.current = setTimeout(() => {
-      layoutTimerRef.current = null;
-      layout.run();
-    }, 20);
+  /** Explicit "Re-layout": the only action that discards the saved positions. */
+  function handleRelayout(): void {
+    const cy = cyRef.current;
+    if (!cy) return;
+    positionsRef.current.clear();
+    setSelectedNodeId(undefined);
+    setSelectedEdgeId(undefined);
+    clearSelection(cy);
+    runFullLayout(cy);
+  }
+
+  function handleSelectEdge(edgeId: string): void {
+    const cy = cyRef.current;
+    if (!cy) return;
+    selectEdge(cy, edgeId);
+    setSelectedEdgeId(edgeId);
+    setSelectedNodeId(undefined);
+  }
+
+  function handleCloseDetail(): void {
+    const cy = cyRef.current;
+    if (cy) clearSelection(cy);
+    setSelectedNodeId(undefined);
+    setSelectedEdgeId(undefined);
   }
 
   // ---------------------------------------------------------------------------
@@ -654,14 +876,42 @@ export function CytoscapeGraph({ onReady, postMessage }: Readonly<CytoscapeGraph
   // Render
   // ---------------------------------------------------------------------------
 
+  const hasGraph = !isLoading && !isEmpty && graphNodes.length > 0;
+
   return (
-    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+    <div style={{ display: "flex", width: "100%", height: "100%" }}>
+      <div style={{ position: "relative", flex: "1 1 auto", minWidth: 0, height: "100%" }}>
       {/* Cytoscape container */}
       <div
         ref={containerRef}
         style={{ width: "100%", height: "100%" }}
         data-testid="cytoscape-container"
       />
+
+      {/* Explicit re-layout: the only control that discards saved positions */}
+      {hasGraph && (
+        <button
+          type="button"
+          onClick={handleRelayout}
+          title="Re-run the layout from scratch"
+          style={{
+            position: "absolute",
+            top: "12px",
+            right: "12px",
+            zIndex: 20,
+            background: "var(--vscode-button-secondaryBackground, rgba(60,60,60,0.85))",
+            color: "var(--vscode-button-secondaryForeground, #fff)",
+            border: "none",
+            borderRadius: 6,
+            padding: "5px 10px",
+            fontSize: 11,
+            cursor: "pointer",
+          }}
+          data-testid="call-graph-relayout"
+        >
+          Re-layout
+        </button>
+      )}
 
       {/* Depth slider */}
       {!isLoading && !isEmpty && (
@@ -785,6 +1035,56 @@ export function CytoscapeGraph({ onReady, postMessage }: Readonly<CytoscapeGraph
           <span>No relationships found for this symbol.</span>
         </div>
       )}
+      </div>
+
+      <CallGraphDetail
+        nodes={graphNodes}
+        edges={graphEdges}
+        selectedNodeId={selectedNodeId}
+        selectedEdgeId={selectedEdgeId}
+        rootSymbolId={rootSymbolId}
+        projectName={projectName}
+        generatedAt={generatedAt}
+        onOpenFile={(path, line, column) => {
+          const open: CallGraphOpenFileCommand = {
+            command: "callGraphOpenFile",
+            uri: path,
+            line,
+            character: column,
+          };
+          try {
+            postMessageRef.current(open);
+          } catch {
+            // postMessage not available outside webview (e.g., unit tests)
+          }
+        }}
+        onFocusNode={(nodeId) => {
+          const node = nodesRef.current.find((candidate) => candidate.id === nodeId);
+          if (!node) return;
+          const focus: CallGraphSymbolFocusCommand = {
+            command: "callGraphSymbolFocus",
+            nodeId: node.id,
+            path: node.path,
+            startLine: node.startLine,
+            startCol: node.startCol,
+          };
+          try {
+            postMessageRef.current(focus);
+          } catch {
+            // postMessage not available outside webview (e.g., unit tests)
+          }
+        }}
+        onSelectEdge={handleSelectEdge}
+        onCopy={(text) => {
+          const copy: CallGraphCopyReferenceCommand = { command: "callGraphCopyReference", text };
+          try {
+            postMessageRef.current(copy);
+          } catch {
+            // postMessage not available outside webview (e.g., unit tests)
+          }
+        }}
+        onClose={handleCloseDetail}
+      />
     </div>
   );
 }
