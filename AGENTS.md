@@ -41,22 +41,22 @@ Before modifying matching paths—or when task topic matches—read correspondin
 
 | Scope or task | Rule |
 | --- | --- |
-| Any `src/**` architecture or code-style change, or `graphit.architecture.json` | `.agent/rules/architecture.md` |
-| Analyzer, MCP, shared security, paths | `.agent/rules/analyzer-mcp-security.md` |
-| React/webview | `.agent/rules/webview-react.md` |
-| Tests or coverage | `.agent/rules/testing.md` |
-| Build, dependencies, package, WASM | `.agent/rules/build-packaging.md` |
-| Live call graph or Cytoscape | `.agent/rules/callgraph-wasm.md` |
-| Markdown or Mermaid diagrams | `.agent/rules/documentation-diagrams.md` |
-| Broad-task bootstrap, shell use, exploration, refactoring, codemaps | `.agent/rules/development-workflow.md` |
-| Source changes or SonarQube | `.agent/rules/quality-gates.md` |
-| Release preparation (docs audit, media, site, changelog, tag) | `.agent/rules/release.md` |
+| Any `src/**` architecture or code-style change, or `graphit.architecture.json` | `.agents/rules/architecture.md` |
+| Analyzer, MCP, shared security, paths | `.agents/rules/analyzer-mcp-security.md` |
+| React/webview | `.agents/rules/webview-react.md` |
+| Tests or coverage | `.agents/rules/testing.md` |
+| Build, dependencies, package, WASM | `.agents/rules/build-packaging.md` |
+| Live call graph or Cytoscape | `.agents/rules/callgraph-wasm.md` |
+| Markdown or Mermaid diagrams | `.agents/rules/documentation-diagrams.md` |
+| Broad-task bootstrap, shell use, exploration, refactoring, codemaps | `.agents/rules/development-workflow.md` |
+| Source changes or SonarQube | `.agents/rules/quality-gates.md` |
+| Release preparation (docs audit, media, site, changelog, tag) | `.agents/rules/release.md` |
 
-Read only the files the routing table selects; do not load `.agent/rules/` wholesale.
+Read only the files the routing table selects; do not load `.agents/rules/` wholesale.
 
 ## Documentation Map
 
-- `.agent/rules/` — agent working rules (this table's targets). Nothing else.
+- `.agents/rules/` — agent working rules (this table's targets). Nothing else.
 - `docs/DESIGN.md` — product and design decisions, and why.
 - `docs/README.md` — index of every other document.
 - `README.md` — user-facing setup and features.

@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-10-09
 **Layer:** Standalone Terminal Interface (VS Code Agnostic)
-**Files:** 34 in `src/cli/` (20 command modules under `src/cli/commands/`, 4 REPL modules under `src/cli/repl/`)
+**Files:** 35 in `src/cli/` (20 command modules under `src/cli/commands/`, 4 REPL modules under `src/cli/repl/`)
 
 ## Overview
 

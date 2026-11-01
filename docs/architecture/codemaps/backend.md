@@ -5,12 +5,12 @@
 
 ## Directory: `src/analyzer/`
 
-### Core Components (223 total TS/TSX files across entire project; 83 in `src/analyzer/`)
+### Core Components (257 total TS/TSX files across entire project; 104 in `src/analyzer/`)
 
 #### Main Facade
 
 ```
-Spider.ts (350 lines)
+Spider.ts (902 lines)
 ├─→ Orchestrates all analysis services
 ├─→ Config: maxDepth, excludeNodeModules, indexing, caching
 └─→ Public API: analyze(), crawl(), getSymbolGraph()
@@ -18,7 +18,7 @@ Spider.ts (350 lines)
 #### Spider Builder ✅
 
 ```
-SpiderBuilder.ts (955 lines)
+SpiderBuilder.ts (973 lines)
 ├→ Builder pattern for constructing fully-wired Spider instances
 ├→ Wires: FileReader, Cache, LanguageService, AstWorkerHost, ReverseIndexManager
 ├→ Wires: IndexerWorkerHost, SourceFileCollector, SpiderServices

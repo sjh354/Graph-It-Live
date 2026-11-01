@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-09-15
 **Layer:** React + ReactFlow (Browser Context)
-**Files:** 28 in `src/webview/`
+**Files:** 35 in `src/webview/`
 
 ## Directory: `src/webview/`
 

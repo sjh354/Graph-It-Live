@@ -14,7 +14,7 @@ Graph-It-Live draws the architecture of a workspace from its static imports, che
 
 ## Concepts
 
-Each term has one meaning in this page, the README and [`docs/CLI.md`](CLI.md).
+Each term has one meaning in this page and the README.
 
 | Term | Meaning |
 | --- | --- |
@@ -326,7 +326,7 @@ Violating edges are dashed red; violating matrix cells are framed red. To fix th
     sarif_file: architecture.sarif
 ```
 
-Each new violation is then annotated on the importing line. Other exit codes are listed in [`docs/CLI.md`](CLI.md#check-architecture).
+Each new violation is then annotated on the importing line. Run `graph-it check-architecture --help` for the other exit codes.
 
 ![Terminal running graph-it check-architecture on Graph-It-Live: passed true, 8 rules, 0 violations, exit code 0](../media/cli-check-architecture.png)
 
@@ -357,7 +357,7 @@ The view, the CLI and the MCP server build the same graph: for the same communit
 | Check rules | Rules panel | `graph-it check-architecture` | `check_architecture` |
 | Write the baseline | — | `check-architecture --update-baseline` | — |
 
-All options and output fields: [`architecture`](CLI.md#architecture), [`check-architecture`](CLI.md#check-architecture), [`explore_architecture`](CLI.md#explore_architecture), [`check_architecture`](CLI.md#check_architecture).
+All options and output fields: run `graph-it architecture --help` and `graph-it check-architecture --help`, or call the `explore_architecture` and `check_architecture` MCP tools.
 
 ## View controls
 
@@ -491,7 +491,7 @@ A single-package repository has its top-level folders as units. Graph-It-Live's 
 }
 ```
 
-The config is validated before anything runs; each error names its JSON path. A pattern matching no file is a config warning. The `$schema` line gives completion and validation in editors. Full key reference: [`docs/CLI.md`](CLI.md#architecture-rules).
+The config is validated before anything runs; each error names its JSON path. A pattern matching no file is a config warning. The `$schema` line gives completion and validation in editors. The `$schema` and `elements`/`rules` shapes are the full key reference; run `graph-it architecture --help` for the command options.
 
 ## Limits
 

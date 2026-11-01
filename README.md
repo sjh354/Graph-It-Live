@@ -232,7 +232,7 @@ graph-it --help                       Show all commands and options
 
 Analysis commands support `--format json|toon|markdown`. `trace`, `path` and `architecture` also support `--format mermaid`, `architecture --matrix` supports `--format csv`, and `check-architecture` supports `--format sarif`. Use `--workspace <path>` or `-w` to analyze a project other than the current directory.
 
-See the [complete CLI reference](docs/CLI.md), including installation troubleshooting, REPL commands, output formats, and tool details.
+Run `graph-it --help` for the full command list, installation troubleshooting, REPL commands, output formats, and tool details.
 
 ### Unified graph context
 
@@ -289,7 +289,7 @@ For VS Code, add `.vscode/mcp.json`:
 }
 ```
 
-For Cursor, use `.cursor/mcp.json` with the same server definition under `mcpServers` instead of `servers`. The same `graph-it serve` command works with Claude Desktop, Claude Code, Windsurf, and Antigravity. See the [CLI/MCP documentation](docs/CLI.md) for client-specific configuration and environment variables.
+For Cursor, use `.cursor/mcp.json` with the same server definition under `mcpServers` instead of `servers`. The same `graph-it serve` command works with Claude Desktop, Claude Code, Windsurf, and Antigravity; each client reads its own configuration file and environment variables.
 
 For Codex CLI:
 
@@ -300,8 +300,7 @@ codex mcp add graph-it-live --env WORKSPACE_ROOT=/path/to/project -- graph-it se
 ### Portable agent plugin
 
 The [`plugins/graph-it-live/`](plugins/graph-it-live/) directory is the portable Agent Plugin package.
-It bundles the MCP server and five skills: `graph-it-live`, `graph-it-refactor`, `onboarding-express`,
-`dead-code-hunter` and `pr-review`. Install it with the client you use:
+It bundles the MCP server. Install it with the client you use:
 
 #### Claude Code
 
@@ -365,13 +364,7 @@ the marketplace versions after each npm publish.
 
 ### Agent skill
 
-Install the Graph-It-Live skill for an AI agent:
-
-```bash
-npx skills add magic5644/skills/graph-it-live
-```
-
-The skill documents graph queries, codemaps, impact analysis, dead-code detection, and safe refactoring workflows.
+Skills stay in the upstream [`magic5644/skills`](https://github.com/magic5644/skills) repository; this fork keeps only the plugin's MCP server.
 
 ## Configuration
 
@@ -404,7 +397,7 @@ Workspace indexing (extension, CLI, and MCP) skips paths listed in the root `.gi
 
 The `graph-it review-pr` command performs a deterministic local Git diff review before CI. It compares exported TypeScript, JavaScript, Vue and Python signatures, lists every file still importing a removed export, follows bounded dependent-symbol impact, and reports cycle evidence, unused exports, test candidates, and consumer standing. Consumers are classified as updated in the diff, covered by a test path, or unverified. The score reflects the highest-risk changed symbol; a high risk is report data, not a failing exit status.
 
-By default, `--base <ref>` is compared with the current working tree, including staged and unstaged file contents. Pass `--head <ref>` to compare two Git refs. Use `--depth` and `--max-files` to bound impact traversal and changed-file analysis. See the [`review-pr` CLI reference](docs/CLI.md#review-pr) for scoring thresholds, output formats, limitations, and examples.
+By default, `--base <ref>` is compared with the current working tree, including staged and unstaged file contents. Pass `--head <ref>` to compare two Git refs. Use `--depth` and `--max-files` to bound impact traversal and changed-file analysis. Run `graph-it review-pr --help` for scoring thresholds, output formats, limitations, and examples.
 
 The reusable GitHub Action is informational by default. Set `fail-on-risk: high` or `critical` to gate a pull request. Add it to a consumer workflow with [`docs/examples/graph-it-review-gate.yml`](docs/examples/graph-it-review-gate.yml).
 
@@ -426,7 +419,6 @@ Use `pull_request`, not `pull_request_target`, for untrusted pull requests. The 
 - [Design decisions](docs/DESIGN.md) — product scope, responsibilities, and why
 - [Development guide](docs/DEVELOPMENT.md) — setup, builds, tests, and WASM architecture
 - [Contributing guide](docs/CONTRIBUTING.md) — contribution workflow and conventions
-- [CLI reference](docs/CLI.md) — commands, REPL, output formats, and MCP tools
 - [Architecture guide](docs/architecture.md) — Architecture view, `graphit.architecture.json` rules, and `check-architecture`
 - [Documentation index](docs/README.md) — every other document
 

@@ -1,7 +1,7 @@
 # Architecture Overview
 
 **Last Updated:** 2026-10-09
-**Total Source Files:** 213 TypeScript/TSX files (analyzer 76, cli 37, webview 28, extension 26, mcp 25, shared 20 — some files span multiple sub-areas)
+**Total Source Files:** 257 TypeScript/TSX files (analyzer 104, cli 35, webview 35, extension 30, mcp 27, shared 26)
 
 ## Architecture Diagrams
 
@@ -44,7 +44,7 @@
 **Key Components:**
 
 - `Spider.ts` - Main facade orchestrating all services
-- `SpiderBuilder.ts` - Builder pattern for constructing Spider instances (955 lines)
+- `SpiderBuilder.ts` - Builder pattern for constructing Spider instances (973 lines)
 - `LanguageService.ts` - Factory for language-specific analyzers (✅ Protected against symbol IDs)
 - `Parser.ts`, `PythonParser.ts`, `RustParser.ts`, `CSharpParser.ts`, `GoParser.ts`, `JavaParser.ts` - Language parsers (✅ Protected)
 - `SymbolAnalyzer.ts` - TypeScript/JavaScript AST analysis
@@ -210,15 +210,14 @@ Branch Watch adds a native path alongside the existing webview: `BranchWatchServ
 
 ### 5. CLI Layer (`src/cli/`)
 
-34 files, 20 commands plus the REPL. See the dedicated [cli.md](cli.md) codemap for full details.
-
+35 files, 20 commands plus the REPL. See the dedicated [cli.md](cli.md) codemap for full details.
 ### 6. MCP Layer (`src/mcp/`)
 
 **Role:** Model Context Protocol for AI/LLM integration
 
 **Server:**
 
-- `mcpServer.ts` - MCP server entry point; registers all 24 tools, includes an in-memory sliding-window rate limiter (`checkRateLimit`) for `set_workspace`/`rebuild_index` (5 calls/10s) and `invalidate_files` (20 calls/10s)
+- `mcpServer.ts` - MCP server entry point; registers all 26 tools, includes an in-memory sliding-window rate limiter (`checkRateLimit`) for `set_workspace`/`rebuild_index` (5 calls/10s) and `invalidate_files` (20 calls/10s)
 - `McpWorker.ts` - Worker thread (NO vscode imports)
 - `McpWorkerHost.ts` - Worker communication
 - `McpServerProvider.ts` - VS Code MCP server provider

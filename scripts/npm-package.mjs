@@ -17,7 +17,6 @@ export const NPM_FILES = [
   'dist/queries/',
   'README.md',
   'LICENSE',
-  'docs/CLI.md',
 ];
 
 /** Derive the npm package manifest from the extension's package.json, keeping its version ranges. */

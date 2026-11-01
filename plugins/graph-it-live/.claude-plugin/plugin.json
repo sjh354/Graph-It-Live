@@ -9,6 +9,5 @@
   },
   "repository": "https://github.com/magic5644/Graph-It-Live",
   "license": "MIT",
-  "skills": "./skills/",
   "mcpServers": "./.mcp.json"
 }

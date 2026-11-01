@@ -173,15 +173,12 @@ docs/AGENT_*
 .obsidian
 .prompts
 
-# Canonical agent rules are tracked; everything else under .agent/ stays local
-.agent/*
-!.agent/rules/
-!.agent/rules/**
-
+# Canonical agent rules are tracked; everything else under .agents/ stays local
 .agents/*
-!.agents/
 !.agents/plugins/
 !.agents/plugins/marketplace.json
+!.agents/rules/
+!.agents/rules/**
 
 
 /codemaps/

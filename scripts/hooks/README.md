@@ -305,8 +305,8 @@ if [[ "$CURRENT_BRANCH" =~ ^(main|develop|staging|release/.*)$ ]]; then
 
 ## Related Documentation
 
-- [Build & Packaging rules](../../.agent/rules/build-packaging.md)
-- [Architecture rules](../../.agent/rules/architecture.md)
+- [Build & Packaging rules](../../.agents/rules/build-packaging.md)
+- [Architecture rules](../../.agents/rules/architecture.md)
 
 ## CI/CD Integration
 

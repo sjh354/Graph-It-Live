@@ -7,7 +7,7 @@ paths:
 
 # Documentation and Mermaid
 
-- Keep documentation concise, factual, and synchronized with code; do not duplicate rules already defined in `AGENTS.md` or `.agent/rules/`.
+- Keep documentation concise, factual, and synchronized with code; do not duplicate rules already defined in `AGENTS.md` or `.agents/rules/`.
 - Store diagrams as `.mmd` files. Fetch Mermaid syntax guidance for unfamiliar diagram types, validate syntax, then preview rendered output before completion.
 - Use correct first-line diagram keyword, balanced delimiters, and valid arrow syntax.
 - Sanitize source-derived labels: remove quotes, backticks, line breaks, Mermaid brackets/operators, and HTML-risk characters; cap label length.

@@ -288,7 +288,7 @@ Use `.github/pull_request_template.md` and complete all checkboxes before reques
 
 ## Coding Standards
 
-The rules are owned by `AGENTS.md` and `.agent/rules/`; do not restate them here.
+The rules are owned by `AGENTS.md` and `.agents/rules/`; do not restate them here.
 
 - Run `npm run lint` and `npm run check:types` before committing.
 - TypeScript stays strict, `any` is avoided, and ESLint decides formatting.
@@ -304,7 +304,7 @@ Update documentation in the same change when behavior, commands, settings, or bu
 - **docs/DESIGN.md**: product and design decisions, and why.
 - **docs/DEVELOPMENT.md**: setup, build, tests, WASM, troubleshooting.
 - **docs/README.md**: index of every other document.
-- **AGENTS.md** and **.agent/rules/**: agent working rules.
+- **AGENTS.md** and **.agents/rules/**: agent working rules.
 - **Inline comments**: WHY for non-obvious constraints, not WHAT the code states.
 
 Style: concise, factual, code examples where they help, TOC kept current, screenshots/GIFs for UI features.
@@ -319,7 +319,7 @@ After any change to `esbuild.js`, `.vscodeignore`, or dependencies, the VSIX mus
 
 The version is not committed: workflows set it from the tag at publish time.
 
-1. Bring the documentation up to date with the code first (`README.md`, `docs/`, plugin skills; see `.agent/rules/release.md`), in its own PR(s).
+1. Bring the documentation up to date with the code first (`README.md`, `docs/`, plugin skills; see `.agents/rules/release.md`), in its own PR(s).
 2. For new user-facing features, add their screenshots and animated GIFs to `media/`, show them in `README.md` and `site/index.html` with an English explanation, in their own PR. Captures show only this repository's code (Graph-It-Live or `tests/fixtures/**`), never third-party code. Demo media stays out of the VSIX: the stores show the README images from GitHub.
 3. Then merge a PR that adds a `## v<version>` section at the top of `changelog.md`, presenting each feature with an example and its image. The release fails before publishing anything when this section is missing.
 4. Push the tag `v<version>` on `main`, or create the release (and its tag) in the GitHub UI. Either way the tag push starts `.github/workflows/release.yml`.

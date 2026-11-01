@@ -27,7 +27,6 @@ meta.json
 metadata.json
 CLAUDE.md
 AGENTS.md
-.agent/**
 .agents/**
 docs/**
 

@@ -1,16 +1,15 @@
 # Graph-It-Live agent plugin
 
-This portable Agent Plugin bundles the Graph-It-Live MCP server and the
-Graph-It-Live skills (`graph-it-live`, `graph-it-refactor`, `onboarding-express`, `dead-code-hunter`,
-and `pr-review`) from [magic5644/skills](https://github.com/magic5644/skills).
+This portable Agent Plugin bundles the Graph-It-Live MCP server. Skills are
+maintained in [magic5644/skills](https://github.com/magic5644/skills), not here.
 
 The `check_architecture` MCP tool and `graph-it check-architecture` check imports
 against the rules in `graphit.architecture.json`; see
 [the architecture guide](https://github.com/magic5644/Graph-It-Live/blob/main/docs/architecture.md).
 
 Install the plugin from its repository with the installation mechanism provided
-by your client. Agent Plugins compatible clients use `plugin.json`, `mcp.json`,
-and `skills/`; Claude Code and Codex also find their native manifests in
+by your client. Agent Plugins compatible clients use `plugin.json` and `mcp.json`;
+Claude Code and Codex also find their native manifests in
 `.claude-plugin/` and `.codex-plugin/`.
 
 Examples:

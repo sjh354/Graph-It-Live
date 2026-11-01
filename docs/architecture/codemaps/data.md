@@ -377,7 +377,7 @@ type ExtensionMessage =
 
 ```typescript
 // MCP Server ↔ MCP Client (AI/LLM)
-// MCP registers 24 tools (prefixed graphitlive_): 23 below plus get_session_stats.
+// MCP registers 26 tools (prefixed graphitlive_): 25 below plus get_session_stats.
 type McpToolName =
   | "set_workspace"          // Set workspace directory (rate-limited: 5 calls/10s)
   | "graph_context"          // Token-bounded subgraph answering a question

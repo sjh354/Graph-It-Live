@@ -15,7 +15,6 @@
     "architecture",
     "mcp"
   ],
-  "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Graph-It-Live",
