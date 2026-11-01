@@ -49,7 +49,7 @@ Before modifying matching paths—or when task topic matches—read correspondin
 | Build, dependencies, package, WASM | `.agents/rules/build-packaging.md` |
 | Live call graph or Cytoscape | `.agents/rules/callgraph-wasm.md` |
 | Markdown or Mermaid diagrams | `.agents/rules/documentation-diagrams.md` |
-| Broad-task bootstrap, shell use, exploration, refactoring, codemaps | `.agents/rules/development-workflow.md` |
+| Broad-task bootstrap, shell use, exploration, refactoring | `.agents/rules/development-workflow.md` |
 | Source changes or SonarQube | `.agents/rules/quality-gates.md` |
 | Release preparation (docs audit, media, site, changelog, tag) | `.agents/rules/release.md` |
 

@@ -26,28 +26,15 @@ Each fact has one owner. Do not restate a rule here; link to the file that owns 
 
 | File | Description |
 |------|-------------|
-| [architecture/codemaps/architecture.md](architecture/codemaps/architecture.md) | System overview: layers, services, MCP tools, review gate |
-| [architecture/codemaps/backend.md](architecture/codemaps/backend.md) | Analyzer layer: Spider, parsers, indexes, call graph, Branch Watch |
-| [architecture/codemaps/cli.md](architecture/codemaps/cli.md) | Standalone CLI layer |
-| [architecture/codemaps/frontend.md](architecture/codemaps/frontend.md) | Webview (React, ReactFlow, Cytoscape) |
-| [architecture/codemaps/data.md](architecture/codemaps/data.md) | Messages, shared types, MCP tool names |
-| [architecture/codemaps/class-hierarchy.md](architecture/codemaps/class-hierarchy.md) | Core interfaces, classes and design patterns |
 | [architecture/TOON_FORMAT.md](architecture/TOON_FORMAT.md) | TOON serialization format |
 | [architecture/MCP_PAYLOAD_LIMITS.md](architecture/MCP_PAYLOAD_LIMITS.md) | MCP input validation and payload size limits |
 | [architecture/MCP_DEBUG_LOGGING_SECURITY.md](architecture/MCP_DEBUG_LOGGING_SECURITY.md) | MCP debug logging: opt-in, rotation, privacy |
-| [architecture/PERFORMANCE_OPTIMIZATIONS.md](architecture/PERFORMANCE_OPTIMIZATIONS.md) | Batch processing, concurrency, caching |
-
-Codemaps are hand-maintained snapshots. Regenerate them with `graph-it` before trusting file or line counts.
 
 ### Diagrams
 
-The diagrams are being refreshed in #300; some content predates Branch Watch and the review gate.
-
 | File | Description |
 |------|-------------|
-| [architecture/graph-it-live-architecture-diagram.html](architecture/graph-it-live-architecture-diagram.html) | Architecture overview (interactive HTML) |
-| [architecture/graph-it-live-four-layer-diagram.html](architecture/graph-it-live-four-layer-diagram.html) | Four-layer view: analyzer, extension, MCP, webview |
-| [architecture/graph-it-live-runtime-flows-diagram.html](architecture/graph-it-live-runtime-flows-diagram.html) | Runtime flows: extension, MCP server, CLI |
+| [architecture/architecture-concepts.svg](architecture/architecture-concepts.svg) | Units, groups and files of the Architecture view; source [`.mmd`](architecture/architecture-concepts.mmd) |
 | [architecture/graph-it-live-architecture.svg](architecture/graph-it-live-architecture.svg) | System diagram with the `src/analyzer/architecture` module and its consumers; source [`.mmd`](architecture/graph-it-live-architecture.mmd) |
 
 ### Architecture decision records

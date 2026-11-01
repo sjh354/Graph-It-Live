@@ -583,7 +583,6 @@ vi.mock('@/analyzer/languages/WasmParserFactory', () => ({
 
 ## Additional Resources
 
-- [Codemaps](architecture/codemaps/architecture.md): system, backend, CLI, frontend and data structure
 - [Cross-platform testing](development/CROSS_PLATFORM_TESTING.md)
 - [`.agents/AGENTS.md`](../.agents/AGENTS.md): agent working rules
 - [docs/README.md](README.md): index of every other document
