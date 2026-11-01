@@ -1,11 +1,6 @@
 # Graph-It-Live
 
-<div align="center">
-  <img src="media/Graph-It-Live-Logo-256.png" alt="Graph-It-Live logo" width="400"/>
-
-  **See your codebase as a graph — in VS Code, your CLI, and your AI assistant.**
-
-</div>
+**See your codebase as a graph — in VS Code, your CLI, and your AI assistant.**
 
 [![Version](https://vsmarketplacebadges.dev/version/magic5644.graph-it-live.svg)](https://marketplace.visualstudio.com/items?itemName=magic5644.graph-it-live)
 [![VS Code installs](https://vsmarketplacebadges.dev/installs-short/magic5644.graph-it-live.svg?label=vscode+installs)](https://marketplace.visualstudio.com/items?itemName=magic5644.graph-it-live)
@@ -15,12 +10,6 @@
 [![License](https://img.shields.io/github/license/magic5644/Graph-It-Live)](LICENSE)
 
 Graph-It-Live analyzes imports, symbols, calls, cycles, unused exports, and change impact. Use it as a VS Code extension, a standalone CLI, or an MCP/native tool provider for GitHub Copilot and other AI clients. Analysis runs locally and returns evidence from your codebase.
-
-### ▶ Watch the 75-second tour
-
-[![Graph-It-Live 75-second tour: the dependency graph in VS Code, coloured by import clusters](media/graph-it-live-promo-poster.png)](media/graph-it-live-promo.mp4)
-
-Click the image to play the video (sound on). It walks through the file graph with Louvain import clusters, the Dependency Structure Matrix, boundary rules declared in `graphit.architecture.json`, and an AI agent fixing a rule violation through the Graph-It-Live MCP server.
 
 ## Table of Contents
 
@@ -47,10 +36,6 @@ Graph-It-Live provides three views of a codebase:
 | **Live call graph** | Which symbols call each other across files? | Tree-sitter and SQLite |
 
 Use the same graph data to navigate code, review refactors, generate codemaps, and give AI assistants focused context instead of entire source files.
-
-<div align="center">
-  <img src="media/demo-plugin-graph-it-live.gif" alt="Graph-It-Live dependency graph" width="800"/>
-</div>
 
 ## Quick start
 
@@ -90,10 +75,6 @@ Supported projects include TypeScript, JavaScript, Python, Rust, C#, Go, Java, V
 
 Drill into TypeScript, JavaScript, Python, or Rust files to see functions, classes, variables, outgoing calls, incoming callers, and recursive calls. Click a symbol to navigate to its definition.
 
-<div align="center">
-  <img src="media/drill-down-symbol-view.png" alt="Graph-It-Live Symbol View" width="600"/>
-</div>
-
 ### Live Call Graph
 
 The Live Call Graph shows cross-file symbol relationships in a Cytoscape.js panel.
@@ -105,21 +86,11 @@ The Live Call Graph shows cross-file symbol relationships in a Cytoscape.js pane
 - Filter by symbol type or folder.
 - Refresh automatically after file saves.
 
-<div align="center">
-  <img src="media/call-graph-view-example.png" alt="Graph-It-Live live call graph" width="800"/>
-</div>
-
 The Live Call Graph supports TypeScript, JavaScript, Vue, Svelte, Python, Rust, C#, Go, Java, and GraphQL. C#, Go, Java, and GraphQL are supported in the file graph and Live Call Graph; Symbol View support is currently limited to TypeScript, JavaScript, Python, and Rust. In GraphQL, operations and fragments call the fragments they spread; an operation's default root type (`Query`, `Mutation`, `Subscription`), type conditions, field, argument and variable types, and union members are type-only references (`USES`, shown with `includeTypeOnly`); `implements` is an `IMPLEMENTS` edge.
 
 ### Architecture view
 
 The Architecture view draws the whole workspace as **units** (packages, else top-level folders) in layers, with the import edges between them, their roles and their cycles. It answers three questions: what are my layers, who depends on this, and does the code follow my rules. The [architecture guide](docs/architecture.md) defines every term, explains the marks of each view and how to fix what they raise: cycles, rule violations, unmatched files.
-
-<div align="center">
-<img src="media/architecture-units-overview.png" alt="Architecture view of an npm-workspaces monorepo: units in layers, a cycle between two shared libraries, rule violations in red" width="800"/>
-</div>
-
-*Units in layers with their roles, a cycle outlined, and rule violations (test fixture monorepo). Open it with *Switch to Architecture View* in the *Dependency Graph* view title bar.*
 
 Quick start:
 
@@ -131,57 +102,9 @@ Quick start:
 
 The CLI (`graph-it architecture --level units`) and the MCP tool `explore_architecture` report the same counts.
 
-<div align="center">
-<img src="media/architecture-roles-filter.png" alt="Units legend with role badges; the libraries filter keeps only the five library units" width="800"/>
-</div>
-
-*Role badges: `[library?]` inferred, `[library]` declared. Click a role in the units legend to filter.*
-
-<div align="center">
-<img src="media/architecture-navigate-groups.gif" alt="Navigating Graph-It-Live's architecture: enter src, then analyzer, Fit the whole level, go back with the breadcrumb" width="800"/>
-</div>
-
-*Double-click a unit or folder to enter it; the breadcrumb or *Escape* goes back.*
-
-<div align="center">
-<img src="media/architecture-edge-evidence.gif" alt="Clicking a unit edge lists its file pairs; clicking a file opens it at the import" width="800"/>
-</div>
-
-*Click an edge for its file pairs, then a file to open it.*
-
-<div align="center">
-<img src="media/architecture-selection-dependents.gif" alt="Selecting a unit, running Dependents by group, and expanding one group's files" width="800"/>
-</div>
-
-*Select a node, then *Dependents by group* in the bottom-left action bar.*
-
-<div align="center">
-<img src="media/architecture-large-workspace.png" alt="Header of a 61-group level: 50 of 61 groups shown, Show more groups, and Find reporting a match in a hidden group" width="600"/>
-</div>
-
-*Enter a unit with more than 50 folder groups: the view draws the 50 largest, and *Show more groups* draws up to 150.*
-
-<div align="center">
-<img src="media/architecture-matrix.png" alt="Dependency structure matrix of Graph-It-Live's src folder: every cell below the diagonal, no cycle" width="800"/>
-</div>
-
-*Click *Matrix* in the *Graph | Matrix* switch for the dependency structure matrix.*
-
 ### Architecture rules
 
 Declare your intended architecture in `graphit.architecture.json` at the workspace root: `elements` name sets of files, `rules` say what each may import, and `roles` declare what each unit is. The view lists each rule with its violations; `graph-it check-architecture` exits with 1 on a new `error` violation, so it can gate CI, with SARIF output for code scanning and a baseline for existing code. See [the config file](docs/architecture.md#the-config-file) for a complete example.
-
-<div align="center">
-<img src="media/architecture-rules-violations.gif" alt="Architecture view Rules panel: clicking a rule lists its violating file pairs, clicking a file opens it at the import" width="800"/>
-</div>
-
-*Write `graphit.architecture.json` at the workspace root, then click *Refresh*: click a rule to list the file pairs that break it, then a file to open it.*
-
-<div align="center">
-<img src="media/cli-check-architecture.png" alt="Terminal running graph-it check-architecture on Graph-It-Live: passed true, 8 rules, 0 violations, exit code 0" width="800"/>
-</div>
-
-*`graph-it check-architecture` on this repository: 8 rules, no violation, exit code 0.*
 
 ### Unused dependencies and impact analysis
 
@@ -190,11 +113,6 @@ Declare your intended architecture in `graphit.architecture.json` at the workspa
 - Trace execution from a function or symbol.
 - Identify callers affected by a signature change.
 - Generate a codemap with exports, internals, dependencies, dependents, and call flow.
-
-<div align="center">
-  <img src="media/demo-filter-hide-mode.gif" alt="Unused dependencies hidden from the graph" width="600"/>
-  <img src="media/demo-filter-dim-mode.gif" alt="Unused dependencies dimmed in the graph" width="600"/>
-</div>
 
 ## Standalone CLI
 
@@ -297,51 +215,9 @@ For Codex CLI:
 codex mcp add graph-it-live --env WORKSPACE_ROOT=/path/to/project -- graph-it serve
 ```
 
-### Portable agent plugin
+### Other MCP clients
 
-The [`plugins/graph-it-live/`](plugins/graph-it-live/) directory is the portable Agent Plugin package.
-It bundles the MCP server. Install it with the client you use:
-
-#### Claude Code
-
-From Claude Code, add the repository marketplace and install the plugin:
-
-```text
-claude plugin marketplace add magic5644/Graph-It-Live
-/plugin install graph-it-live@graph-it-live
-```
-
-For a local checkout, start a session with `claude --plugin-dir ./plugins/graph-it-live`.
-
-#### GitHub Copilot CLI
-
-```text
-copilot plugin marketplace add magic5644/Graph-It-Live
-copilot plugin install graph-it-live@graph-it-live
-```
-
-#### VS Code
-
-1. Open the Command Palette.
-2. Run **Chat: Install Plugin From Source**.
-3. Select `plugins/graph-it-live/`.
-
-The VS Code extension itself remains available from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=magic5644.graph-it-live)
-and [Open VSX](https://open-vsx.org/extension/magic5644/graph-it-live).
-
-#### Cursor
-
-Open the **Plugins** panel, choose **Install from local source**, and select
-`plugins/graph-it-live/`.
-
-#### Codex
-
-Add the repository's [Codex marketplace catalog](.agents/plugins/marketplace.json) to a configured
-plugin marketplace, then open `/plugins` in Codex and install **Graph-It-Live**.
-
-#### Windsurf, Antigravity, and other MCP clients
-
-These clients can use the MCP server directly. Add this server entry to the client's MCP configuration:
+Clients without a native integration use the same server entry in their MCP configuration file:
 
 ```json
 {
@@ -353,18 +229,7 @@ These clients can use the MCP server directly. Add this server entry to the clie
 }
 ```
 
-Use the client's MCP configuration file and its expected top-level key (`servers` or `mcpServers`).
-See the [MCP server instructions](#mcp-server) for ready-to-copy VS Code, Cursor, and Codex examples.
-
-The repository also includes marketplace catalogs for [Claude Code](.claude-plugin/marketplace.json)
-and [Codex](.agents/plugins/marketplace.json). The MCP entry pins the
-latest published `@magic5644/graph-it-live` version and starts it with `npx --prefer-offline`, so a
-cached package starts without a registry lookup; a workflow updates the pin, the plugin manifests and
-the marketplace versions after each npm publish.
-
-### Agent skill
-
-Skills stay in the upstream [`magic5644/skills`](https://github.com/magic5644/skills) repository; this fork keeps only the plugin's MCP server.
+Use the client expected top-level key (`servers` or `mcpServers`). See the [MCP server instructions](#mcp-server) for ready-to-copy VS Code, Cursor and Codex examples.
 
 ## Configuration
 
@@ -398,10 +263,6 @@ Workspace indexing (extension, CLI, and MCP) skips paths listed in the root `.gi
 The `graph-it review-pr` command performs a deterministic local Git diff review before CI. It compares exported TypeScript, JavaScript, Vue and Python signatures, lists every file still importing a removed export, follows bounded dependent-symbol impact, and reports cycle evidence, unused exports, test candidates, and consumer standing. Consumers are classified as updated in the diff, covered by a test path, or unverified. The score reflects the highest-risk changed symbol; a high risk is report data, not a failing exit status.
 
 By default, `--base <ref>` is compared with the current working tree, including staged and unstaged file contents. Pass `--head <ref>` to compare two Git refs. Use `--depth` and `--max-files` to bound impact traversal and changed-file analysis. Run `graph-it review-pr --help` for scoring thresholds, output formats, limitations, and examples.
-
-The reusable GitHub Action is informational by default. Set `fail-on-risk: high` or `critical` to gate a pull request.
-
-Use `pull_request`, not `pull_request_target`, for untrusted pull requests. The action analyzes the consumer checkout in an isolated temporary directory and sends only a sanitized report to GitHub.
 
 ## Supported languages
 

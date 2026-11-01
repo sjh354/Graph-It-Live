@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url';
 // A Node script, not a shell one-liner: npm runs scripts with cmd.exe on Windows.
 // Usage: node scripts/verify-package.mjs
 
-const ICON = 'media/Graph-It-Live-Logo-256.png';
+const ICON = 'resources/icon.png';
 
 /** Returns one error message per failed check of the packaged file list. */
 export function packageErrors(listing) {

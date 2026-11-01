@@ -176,8 +176,6 @@ docs/AGENT_*
 # Canonical agent rules are tracked; everything else under .agents/ stays local
 .agents/*
 !.agents/AGENTS.md
-!.agents/plugins/
-!.agents/plugins/marketplace.json
 !.agents/rules/
 !.agents/rules/**
 

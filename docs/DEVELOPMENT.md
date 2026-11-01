@@ -447,12 +447,12 @@ npm run package:verify
 
 ### Before Releasing
 
-Release order and tag procedure are owned by [`.agents/rules/release.md`](../.agents/rules/release.md). Locally, that means:
+There is no release workflow in this fork: no Marketplace, Open VSX or npm publish. To check a local build, run:
 
 ```bash
 npm test
 npm run test:coverage
-npm run test:vscode:vsix  # MANDATORY - tests the packaged extension
+npm run test:vscode:vsix  # tests the packaged extension
 npm run build -- --production && npm run package && npm run package:verify
 code --install-extension graph-it-live-*.vsix  # check install in a clean VS Code instance
 ```

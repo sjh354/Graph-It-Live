@@ -2,13 +2,13 @@
  * Package verification tests
  *
  * scripts/verify-package.mjs checks the `vsce ls` listing: no source maps,
- * and the extension icon still packaged although media/ is excluded.
+ * and the extension icon still packaged.
  */
 
 import { describe, expect, it } from 'vitest';
 import { packageErrors } from '../../scripts/verify-package.mjs';
 
-const ICON = 'media/Graph-It-Live-Logo-256.png';
+const ICON = 'resources/icon.png';
 
 describe('packageErrors', () => {
   it('accepts a listing with the icon and no source maps', () => {
@@ -16,7 +16,7 @@ describe('packageErrors', () => {
   });
 
   it('accepts Windows separators and line endings', () => {
-    expect(packageErrors(['dist\\extension.js', String.raw`media\Graph-It-Live-Logo-256.png`].join('\r\n'))).toEqual([]);
+    expect(packageErrors(['dist\\extension.js', String.raw`resources\icon.png`].join('\r\n'))).toEqual([]);
   });
 
   it('reports a missing icon and every source map', () => {

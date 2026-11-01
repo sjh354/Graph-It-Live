@@ -51,7 +51,6 @@ Before modifying matching paths—or when task topic matches—read correspondin
 | Markdown or Mermaid diagrams | `.agents/rules/documentation-diagrams.md` |
 | Broad-task bootstrap, shell use, exploration, refactoring | `.agents/rules/development-workflow.md` |
 | Source changes or SonarQube | `.agents/rules/quality-gates.md` |
-| Release preparation (docs audit, media, site, version, tag) | `.agents/rules/release.md` |
 
 Read only the files the routing table selects; do not load `.agents/rules/` wholesale.
 

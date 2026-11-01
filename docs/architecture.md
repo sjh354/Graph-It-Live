@@ -8,9 +8,6 @@ Graph-It-Live draws the architecture of a workspace from its static imports, che
 - **Who depends on this?** Every package or folder that imports a package, a folder or a file, directly or not.
 - **Does the code follow my architecture?** Every import checked against the rules of `graphit.architecture.json`, locally or in CI.
 
-![Architecture view of an npm-workspaces monorepo: units in layers, a cycle between two shared libraries, rule violations in red](../media/architecture-units-overview.png)
-
-*Units in layers with their roles, a cycle outlined, and rule violations (test fixture monorepo). Open it with **Switch to Architecture View** in the title bar of the **Dependency Graph** view.*
 
 ## Concepts
 
@@ -68,9 +65,6 @@ Each part of the view below answers three questions: what it is for, how to read
 - **Navigate.** Double-click a unit to enter its folders; double-click a folder holding sub-folders (double border) to go one level deeper; double-click another group to expand its files. Go back with the breadcrumb or *Escape*.
 - **`path` or `louvain`.** `graph-it-live.communityMode` decides the groups. `path` (default) answers "how do my packages and folders depend on each other?": it gives units, folder levels, layers and upward edges. `louvain` answers "which files really work together, whatever their folder?": one flat level of communities, without units or layers. Switch to `louvain` when the folders no longer match the coupling, for example a folder whose files all import another folder.
 
-![Navigating Graph-It-Live's architecture: enter src, then analyzer, Fit the whole level, go back with the breadcrumb](../media/architecture-navigate-groups.gif)
-
-*Graph-It-Live itself: double-click `src`, then `analyzer`, press *Fit*, then go back with the breadcrumb.*
 
 **How to fix what it shows.** Red block or solid red edges: [a cycle](#a-cycle); see also [an upward edge](#an-upward-edge-outside-a-cycle). Dashed red edge: [a rule violation](#a-rule-violation). A group in the wrong band, or a thick edge between groups meant to be independent: [an unexpected layer or a heavy dependency](#an-unexpected-layer-or-a-heavy-dependency).
 
@@ -87,9 +81,6 @@ A file pair counts one file importing another, whatever the number of import lin
 
 To remove the edge, remove every pair. Pairs sharing one imported file are often fixed together: move that file, or the part of it they use. A single importer with many pairs is often one file in the wrong group.
 
-![Clicking a unit edge lists its file pairs; clicking a file opens it at the import](../media/architecture-edge-evidence.gif)
-
-*Click an edge for the file pairs behind it, then a file to open it.*
 
 ### Dependents panel
 
@@ -112,9 +103,6 @@ Counts use every static import of the workspace, drawn or not. Runtime-only use 
 
 **How to act on it.** Before removing or changing the selection, open each group with direct importers: those files change first. A group reached only at a high depth is impacted through others; changing the groups in between can cut it off. A group you did not expect in the list is a dependency to question: click its edge for the file pairs, then see [an unexpected layer or a heavy dependency](#an-unexpected-layer-or-a-heavy-dependency).
 
-![Selecting a unit, running Dependents by group, and expanding one group's files](../media/architecture-selection-dependents.gif)
-
-*Select a unit, a group or a file, then **Dependents by group** in the bottom-left action bar.*
 
 ### Dependency structure matrix
 
@@ -148,9 +136,6 @@ Every cell sits below the diagonal. Now `shared/format.ts` imports `core/config.
 
 Rows 1–2 are outlined. The red cell, `core` → `shared`, has 6 pairs; its mirror below the diagonal, `shared` → `core`, holds the new import with 1 pair. Both close the cycle: start with the smaller one, `shared` → `core`.
 
-![Dependency structure matrix of Graph-It-Live's src folder: every cell below the diagonal, no cycle](../media/architecture-matrix.png)
-
-*Matrix of Graph-It-Live's `src`: a layered architecture fills only the lower triangle. Enter a unit, then click **Matrix**.*
 
 **How to fix what it shows.** Click a cell for its file pairs in the evidence panel. Click a row header to select its unit or group, or to enter a folder holding sub-folders. Red fill or outlined block: [a cycle](#a-cycle). Red frame: [a rule violation](#a-rule-violation). A heavy cell between groups meant to be independent: [a heavy dependency](#an-unexpected-layer-or-a-heavy-dependency).
 
@@ -308,9 +293,6 @@ A unit higher than expected, or a thick edge or heavy cell between two units mea
 
 Violating edges are dashed red; violating matrix cells are framed red. To fix them, see [A rule violation](#a-rule-violation).
 
-![Architecture view Rules panel: clicking a rule lists its violating file pairs, clicking a file opens it at the import](../media/architecture-rules-violations.gif)
-
-*Rules panel of an npm-workspaces monorepo (test fixture). Add `graphit.architecture.json` at the workspace root to get the panel.*
 
 ### Fail CI on a forbidden import
 
@@ -328,9 +310,6 @@ Violating edges are dashed red; violating matrix cells are framed red. To fix th
 
 Each new violation is then annotated on the importing line. Run `graph-it check-architecture --help` for the other exit codes.
 
-![Terminal running graph-it check-architecture on Graph-It-Live: passed true, 8 rules, 0 violations, exit code 0](../media/cli-check-architecture.png)
-
-*`graph-it check-architecture` on this repository: 8 rules, every file in an element, no violation, exit code 0.*
 
 ### Adopt rules on existing code
 
@@ -401,9 +380,6 @@ A role describes a unit. It comes from the unit's manifest, top-level configs, `
 
 A unit matching several roles takes the first in the table; the other matches stay as evidence. The badge reads `[role?]` when inferred and `[role]` when declared; its tooltip lists the evidence.
 
-![Units legend with role badges; the libraries filter keeps only the five library units](../media/architecture-roles-filter.png)
-
-*`[library?]` is inferred, `[library]` declared. Click a role in the legend to keep only its units.*
 
 ## The config file
 
