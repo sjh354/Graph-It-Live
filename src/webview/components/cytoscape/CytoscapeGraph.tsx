@@ -453,18 +453,38 @@ export function CytoscapeGraph({ onReady, postMessage }: Readonly<CytoscapeGraph
       }
     });
 
-    // Auto-resize + auto-center when the webview panel is resized.
-    // cy.resize() recalculates internal canvas dimensions; cy.fit() re-centers.
+    // Auto-resize when the webview panel is resized. Opening the detail panel
+    // narrows the canvas; re-fitting there would shrink the whole graph on the
+    // first click, so keep the zoom and only re-centre the same content.
     // Debounced at 120 ms so we don't thrash during a live drag-resize.
     let resizeTimer: ReturnType<typeof setTimeout> | null = null;
     const handleResize = (): void => {
       if (resizeTimer !== null) clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
-        if (!cyRef.current) return;
-        cyRef.current.resize();
-        cyRef.current.fit(undefined, 60);
-        triggerCanvasRepaint(cyRef.current);
+        const current = cyRef.current;
         resizeTimer = null;
+        if (!current) return;
+
+        const zoom = current.zoom();
+        const pan = current.pan();
+        const hadSize = current.width() > 0 && current.height() > 0;
+        // The model point at the centre of the old viewport.
+        const centre = hadSize
+          ? {
+              x: (current.width() / 2 - pan.x) / zoom,
+              y: (current.height() / 2 - pan.y) / zoom,
+            }
+          : null;
+
+        current.resize();
+
+        if (centre && current.width() > 0 && current.height() > 0) {
+          current.pan({
+            x: current.width() / 2 - centre.x * zoom,
+            y: current.height() / 2 - centre.y * zoom,
+          });
+        }
+        triggerCanvasRepaint(current);
       }, 120);
     };
 
