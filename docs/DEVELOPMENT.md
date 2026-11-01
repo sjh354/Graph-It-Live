@@ -449,58 +449,19 @@ npm run package:verify
 
 ### Before Releasing
 
-1. **Run full test suite**:
+Release order, changelog rules, and tag procedure are owned by [CONTRIBUTING.md *Releasing*](CONTRIBUTING.md#releasing). Locally, that means:
 
 ```bash
 npm test
 npm run test:coverage
-npm run test:vscode:vsix  # MANDATORY - tests packaged extension
+npm run test:vscode:vsix  # MANDATORY - tests the packaged extension
+npm run build -- --production && npm run package && npm run package:verify
+code --install-extension graph-it-live-*.vsix  # check install in a clean VS Code instance
 ```
-
-2. **Verify package**:
-
-```bash
-npm run build -- --production
-npm run package
-npm run package:verify
-npx vsce ls | grep "\.wasm$"  # Verify WASM files
-ls -lh *.vsix  # Check size
-```
-
-3. **Test installation**:
-
-```bash
-# Install the .vsix in a clean VS Code instance
-code --install-extension graph-it-live-*.vsix
-```
-
-4. **Update changelog**:
-
-- Document all changes in `changelog.md`
-- Follow existing format and conventions
 
 ### Cross-Platform Development
 
-**Important**: All code and tests must work on Windows, Linux, and macOS.
-
-**Path Handling**:
-
-```typescript
-// ✅ Good - cross-platform
-const filePath = path.join(baseDir, 'src', 'file.ts');
-const testPath = String.raw`C:\Users\test\file.ts`; // Windows literal
-
-// ❌ Bad - platform-specific
-const filePath = baseDir + '/src/file.ts';
-const testPath = 'C:\\Users\\test\\file.ts';
-```
-
-**Testing**:
-
-- Use `path.join()` or `path.resolve()` for file paths
-- Use `String.raw` for Windows path literals in test data
-- Normalize paths with `normalizePath()` from `src/shared/path.ts`
-- Test on multiple platforms if possible
+All code and tests must work on Windows, Linux, and macOS. Path rules, forbidden patterns, and test cases: [development/CROSS_PLATFORM_TESTING.md](development/CROSS_PLATFORM_TESTING.md).
 
 ## Troubleshooting
 
@@ -622,11 +583,10 @@ vi.mock('@/analyzer/languages/WasmParserFactory', () => ({
 
 ## Additional Resources
 
-- **Project Structure**: See `.kiro/steering/project-structure.md`
-- **Testing Guidelines**: See `.kiro/steering/testing-guidelines.md`
-- **Coding Standards**: See `.kiro/steering/coding-standards.md`
-- **WASM Migration Spec**: See `.kiro/specs/tree-sitter-wasm-migration/`
-- **AGENTS.md**: Comprehensive repository guidelines for AI agents
+- [Codemaps](architecture/codemaps/architecture.md): system, backend, CLI, frontend and data structure
+- [Cross-platform testing](development/CROSS_PLATFORM_TESTING.md)
+- [AGENTS.md](../AGENTS.md): agent working rules
+- [docs/README.md](README.md): index of every other document
 
 ## Getting Help
 
@@ -636,4 +596,4 @@ vi.mock('@/analyzer/languages/WasmParserFactory', () => ({
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](../LICENSE) file for details.

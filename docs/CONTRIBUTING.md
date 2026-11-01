@@ -288,126 +288,38 @@ Use `.github/pull_request_template.md` and complete all checkboxes before reques
 
 ## Coding Standards
 
-### TypeScript Guidelines
+The rules are owned by `AGENTS.md` and `.agent/rules/`; do not restate them here.
 
-- **Strict mode**: TypeScript is strict, avoid `any` types
-- **No unused locals**: Remove unused variables and parameters
-- **ESLint compliance**: Run `npm run lint` before committing
-- **Type safety**: Use proper types, avoid type assertions when possible
+- Run `npm run lint` and `npm run check:types` before committing.
+- TypeScript stays strict, `any` is avoided, and ESLint decides formatting.
+- Build filesystem paths with `node:path` and normalize with `normalizePath()` before path keys enter Sets or Maps.
 
-### Code Quality
-
-- **Small functions**: Keep functions focused and concise
-- **Nesting depth**: Keep function nesting depth ≤ 4 levels
-- **Meaningful names**: Use descriptive variable and function names
-- **JSDoc comments**: Add JSDoc for public APIs
-- **Error handling**: Use proper error types, provide meaningful messages
-
-### Cross-Platform Compatibility
-
-**CRITICAL**: All code must work on Windows, Linux, and macOS.
-
-**Path Handling**:
-
-```typescript
-// ✅ Good - cross-platform
-const filePath = path.join(baseDir, 'src', 'file.ts');
-const testPath = String.raw`C:\Users\test\file.ts`; // Windows literal
-
-// ❌ Bad - platform-specific
-const filePath = baseDir + '/src/file.ts';
-const testPath = 'C:\\Users\\test\\file.ts';
-```
+Cross-platform requirements are in [development/CROSS_PLATFORM_TESTING.md](development/CROSS_PLATFORM_TESTING.md).
 
 ## Documentation
 
-### When to Update Documentation
+Update documentation in the same change when behavior, commands, settings, or build/test steps change. A doc that describes removed behavior is deleted, not archived.
 
-Update documentation when:
+- **README.md**: user-facing setup and features.
+- **docs/DESIGN.md**: product and design decisions, and why.
+- **docs/DEVELOPMENT.md**: setup, build, tests, WASM, troubleshooting.
+- **docs/README.md**: index of every other document.
+- **AGENTS.md** and **.agent/rules/**: agent working rules.
+- **Inline comments**: WHY for non-obvious constraints, not WHAT the code states.
 
-- Adding new features or commands
-- Changing existing behavior
-- Adding new configuration options
-- Modifying build or test processes
-- Fixing bugs that affect documented behavior
+Style: concise, factual, code examples where they help, TOC kept current, screenshots/GIFs for UI features.
 
-### Documentation Files
+## WASM and Packaging
 
-- **README.md**: User-facing documentation, features, usage
-- **DEVELOPMENT.md**: Development setup, build process, testing
-- **CONTRIBUTING.md**: This file, contribution guidelines
-- **AGENTS.md**: Repository guidelines for AI agents
-- **docs/**: Detailed technical documentation
-- **Inline comments**: Code documentation for complex logic
+WASM parsers are copied assets, not bundled JavaScript; unit tests mock them and E2E tests load the real ones. Details: [DEVELOPMENT.md](DEVELOPMENT.md#wasm-architecture).
 
-### Documentation Style
-
-- Use clear, concise language
-- Include code examples where helpful
-- Use proper markdown formatting
-- Keep table of contents updated
-- Add screenshots/GIFs for UI features
-
-## WASM Architecture
-
-Graph-It-Live uses WebAssembly (WASM) parsers for improved installation reliability and cross-platform compatibility.
-
-### Key Points for Contributors
-
-1. **Unit tests use mocked parsers** - WASM doesn't work in Node.js
-2. **E2E tests use real WASM parsers** - Validate in Electron environment
-3. **Extension path required** - Parsers need extension path to locate WASM files
-4. **Singleton pattern** - Parser instances are cached and reused
-5. **Async initialization** - WASM loading is asynchronous
-
-### Testing with WASM
-
-**Unit Tests** (mocked parsers):
-
-```typescript
-import { vi } from 'vitest';
-
-vi.mock('@/analyzer/languages/WasmParserFactory', () => ({
-  WasmParserFactory: {
-    getInstance: vi.fn().mockReturnValue({
-      init: vi.fn().mockResolvedValue(undefined),
-      getParser: vi.fn().mockResolvedValue({
-        parse: vi.fn().mockReturnValue({ rootNode: {} }),
-      }),
-    }),
-  },
-}));
-```
-
-**Integration Tests** (real WASM):
-
-```typescript
-const spider = new SpiderBuilder()
-  .withRootDir('/test/project')
-  .withExtensionPath('/path/to/extension')
-  .build();
-```
-
-For complete WASM architecture details, see [DEVELOPMENT.md](DEVELOPMENT.md#wasm-architecture).
-
-## Package Verification
-
-**CRITICAL**: After any change to `esbuild.js`, `.vscodeignore`, or dependencies in `package.json`:
-
-```bash
-npm run build -- --production
-npm run package
-npm run package:verify  # Must show "✅ No .map files in package"
-npx vsce ls | grep "\.wasm$"  # Verify WASM files are included
-```
-
-For complete package verification details, see [DEVELOPMENT.md](DEVELOPMENT.md#package-verification).
+After any change to `esbuild.js`, `.vscodeignore`, or dependencies, the VSIX must contain zero `.map` files and every required `.wasm`/`.scm` asset. Procedure and expected output: [DEVELOPMENT.md](DEVELOPMENT.md#package-verification).
 
 ## Releasing
 
 The version is not committed: workflows set it from the tag at publish time.
 
-1. Bring the documentation up to date with the code first (`README.md`, `docs/`, plugin skills; see `.claude/rules/release.md`), in its own PR(s).
+1. Bring the documentation up to date with the code first (`README.md`, `docs/`, plugin skills; see `.agent/rules/release.md`), in its own PR(s).
 2. For new user-facing features, add their screenshots and animated GIFs to `media/`, show them in `README.md` and `site/index.html` with an English explanation, in their own PR. Captures show only this repository's code (Graph-It-Live or `tests/fixtures/**`), never third-party code. Demo media stays out of the VSIX: the stores show the README images from GitHub.
 3. Then merge a PR that adds a `## v<version>` section at the top of `changelog.md`, presenting each feature with an example and its image. The release fails before publishing anything when this section is missing.
 4. Push the tag `v<version>` on `main`, or create the release (and its tag) in the GitHub UI. Either way the tag push starts `.github/workflows/release.yml`.
@@ -433,7 +345,7 @@ node scripts/release-notes.mjs v1.18.0 release-notes.md
 - **GitHub Issues**: Report bugs or request features
 - **GitHub Discussions**: Ask questions or share ideas
 - **Documentation**: Check `docs/` directory for detailed guides
-- **DEVELOPMENT.md**: Comprehensive development guide
+- **[docs/DEVELOPMENT.md](DEVELOPMENT.md)**: setup, builds, tests, WASM, troubleshooting
 
 ## License
 

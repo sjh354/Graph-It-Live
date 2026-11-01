@@ -423,17 +423,12 @@ Use `pull_request`, not `pull_request_target`, for untrusted pull requests. The 
 
 ## Documentation
 
+- [Design decisions](docs/DESIGN.md) — product scope, responsibilities, and why
+- [Development guide](docs/DEVELOPMENT.md) — setup, builds, tests, and WASM architecture
+- [Contributing guide](docs/CONTRIBUTING.md) — contribution workflow and conventions
 - [CLI reference](docs/CLI.md) — commands, REPL, output formats, and MCP tools
 - [Architecture guide](docs/architecture.md) — Architecture view, `graphit.architecture.json` rules, and `check-architecture`
-- [Development guide](DEVELOPMENT.md) — setup, builds, tests, and WASM architecture
-- [Contributing guide](CONTRIBUTING.md) — contribution workflow and conventions
-- [System architecture](docs/architecture/codemaps/architecture.md)
-- [Class hierarchy](docs/architecture/codemaps/class-hierarchy.md)
-- [TOON format](docs/architecture/TOON_FORMAT.md)
-- [Coding standards](docs/development/CODING_STANDARDS.md)
-- [Cross-platform testing](docs/development/CROSS_PLATFORM_TESTING.md)
-- [Performance optimizations](docs/architecture/PERFORMANCE_OPTIMIZATIONS.md)
-- [Documentation index](docs/README.md)
+- [Documentation index](docs/README.md) — every other document
 
 ## Development
 
@@ -459,7 +454,7 @@ Press F5 in VS Code to launch the Extension Development Host.
 | `npm run package` | Build the VSIX package |
 | `npm run package:verify` | Verify package contents |
 
-See [DEVELOPMENT.md](DEVELOPMENT.md) for the full project structure, test strategy, WASM details, and troubleshooting.
+See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for the full project structure, test strategy, WASM details, and troubleshooting.
 
 ## License
 

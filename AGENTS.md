@@ -41,22 +41,22 @@ Before modifying matching paths—or when task topic matches—read correspondin
 
 | Scope or task | Rule |
 | --- | --- |
-| Any `src/**` architecture or code-style change, or `graphit.architecture.json` | `.claude/rules/architecture.md` |
-| Analyzer, MCP, shared security, paths | `.claude/rules/analyzer-mcp-security.md` |
-| React/webview | `.claude/rules/webview-react.md` |
-| Tests or coverage | `.claude/rules/testing.md` |
-| Build, dependencies, package, WASM | `.claude/rules/build-packaging.md` |
-| Live call graph or Cytoscape | `.claude/rules/callgraph-wasm.md` |
-| Markdown or Mermaid diagrams | `.claude/rules/documentation-diagrams.md` |
-| AIDD agents, gates, memory, handoffs | `.claude/rules/agent-workflow.md` |
-| Broad-task bootstrap, shell use, exploration, refactoring, codemaps | `.claude/rules/development-workflow.md` |
-| Source changes or SonarQube | `.claude/rules/quality-gates.md` |
-| Release preparation (docs audit, media, site, changelog, tag) | `.claude/rules/release.md` |
+| Any `src/**` architecture or code-style change, or `graphit.architecture.json` | `.agent/rules/architecture.md` |
+| Analyzer, MCP, shared security, paths | `.agent/rules/analyzer-mcp-security.md` |
+| React/webview | `.agent/rules/webview-react.md` |
+| Tests or coverage | `.agent/rules/testing.md` |
+| Build, dependencies, package, WASM | `.agent/rules/build-packaging.md` |
+| Live call graph or Cytoscape | `.agent/rules/callgraph-wasm.md` |
+| Markdown or Mermaid diagrams | `.agent/rules/documentation-diagrams.md` |
+| Broad-task bootstrap, shell use, exploration, refactoring, codemaps | `.agent/rules/development-workflow.md` |
+| Source changes or SonarQube | `.agent/rules/quality-gates.md` |
+| Release preparation (docs audit, media, site, changelog, tag) | `.agent/rules/release.md` |
 
-Claude Code and VS Code load matching `.claude/rules` automatically. Codex must follow routing table explicitly.
+Read only the files the routing table selects; do not load `.agent/rules/` wholesale.
 
-## Custom Agents and Automation
+## Documentation Map
 
-- AIDD personas: `.claude/agents/`; orchestration commands: `.claude/commands/`; workflow: `.claude/FRAMEWORK.md`.
-- Reusable repository agents: `.agents/agents/`; VS Code agents: `.github/agents/`.
-- Focused validation skills: `graph-it-live-layer-check`, `graph-it-live-package-validator`, and `graph-it-live-wasm-verify`.
+- `.agent/rules/` — agent working rules (this table's targets). Nothing else.
+- `docs/DESIGN.md` — product and design decisions, and why.
+- `docs/README.md` — index of every other document.
+- `README.md` — user-facing setup and features.

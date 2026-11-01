@@ -2,4 +2,4 @@
 
 # Claude Code
 
-Project rules in `.claude/rules/` load automatically when their `paths` match. For task-only topics, follow routing table in `AGENTS.md` before editing.
+Project rules live in `.agent/rules/` and are not auto-loaded. Follow the routing table in `AGENTS.md`, then read only the matching rule file before editing.

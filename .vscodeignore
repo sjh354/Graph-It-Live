@@ -25,9 +25,11 @@ tsconfig.tsbuildinfo
 *.tsbuildinfo
 meta.json
 metadata.json
-DEVELOPMENT.md
 CLAUDE.md
-.claude/**
+AGENTS.md
+.agent/**
+.agents/**
+docs/**
 
 # Source code (bundled in dist/)
 src/**

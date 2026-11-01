@@ -161,20 +161,23 @@ vite.config.ts.timestamp-*
 
 # Agent files
 .copilot/
-.claude/*
-!.claude/rules/
-!.claude/rules/**
+.claude/
 docs/AGENT_*
 .github/agents
 .github/prompts
 .github/context-mode
 .specify
 .reports
-.agent
 .codex
 .scannerwork
 .obsidian
 .prompts
+
+# Canonical agent rules are tracked; everything else under .agent/ stays local
+.agent/*
+!.agent/rules/
+!.agent/rules/**
+
 .agents/*
 !.agents/
 !.agents/plugins/
@@ -193,7 +196,7 @@ playwright-report/
 test-results/
 
 
-# Extension-generated AI rules remain local. Canonical rules live in .claude/rules/.
+# Extension-generated AI rules remain local. Canonical rules live in .agent/rules/.
 .github/instructions
 .github/skills
 .github/hooks

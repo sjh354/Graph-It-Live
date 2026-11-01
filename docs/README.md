@@ -1,8 +1,17 @@
 # Graph-It-Live Documentation
 
-**Last Updated:** 2026-10-09
+**Last Updated:** 2026-11-01
 
-Technical documentation for the VS Code extension, the `graph-it` CLI and the MCP server. User-facing setup and features are in the root [README](../README.md).
+Index of every document except the root [README](../README.md) (user-facing setup and features) and [AGENTS.md](../AGENTS.md) (agent working rules, with the rules themselves in [`.agent/rules/`](../.agent/rules/)).
+
+Each fact has one owner. Do not restate a rule here; link to the file that owns it.
+
+| Owns | File |
+| --- | --- |
+| Product and design decisions, and why | [DESIGN.md](DESIGN.md) |
+| Setup, build, tests, WASM, troubleshooting | [DEVELOPMENT.md](DEVELOPMENT.md) |
+| Contribution workflow, PR evidence, release order | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| Agent working rules (path-scoped) | [`.agent/rules/`](../.agent/rules/) |
 
 ---
 
@@ -11,7 +20,7 @@ Technical documentation for the VS Code extension, the `graph-it` CLI and the MC
 | File | Description |
 |------|-------------|
 | [CLI.md](CLI.md) | `graph-it` CLI reference: REPL, commands, options, output formats, environment variables, MCP tools via `graph-it tool`, review gate |
-| [architecture.md](architecture.md) | Architecture view, `graphit.architecture.json` rules and roles, `check-architecture`: concepts, tasks, surfaces, limits |
+| [architecture.md](architecture.md) | Architecture view, `graphit.architecture.json` rules and roles, `check-architecture` |
 | [examples/graph-it-review-gate.yml](examples/graph-it-review-gate.yml) | Consumer workflow for the Graph-It Review Gate GitHub Action |
 
 ## Architecture
@@ -19,7 +28,7 @@ Technical documentation for the VS Code extension, the `graph-it` CLI and the MC
 | File | Description |
 |------|-------------|
 | [architecture/codemaps/architecture.md](architecture/codemaps/architecture.md) | System overview: layers, services, MCP tools, review gate |
-| [architecture/codemaps/backend.md](architecture/codemaps/backend.md) | Analyzer layer: Spider, parsers, indexes, call graph, Branch Watch, community detection |
+| [architecture/codemaps/backend.md](architecture/codemaps/backend.md) | Analyzer layer: Spider, parsers, indexes, call graph, Branch Watch |
 | [architecture/codemaps/cli.md](architecture/codemaps/cli.md) | Standalone CLI layer |
 | [architecture/codemaps/frontend.md](architecture/codemaps/frontend.md) | Webview (React, ReactFlow, Cytoscape) |
 | [architecture/codemaps/data.md](architecture/codemaps/data.md) | Messages, shared types, MCP tool names |
@@ -28,6 +37,8 @@ Technical documentation for the VS Code extension, the `graph-it` CLI and the MC
 | [architecture/MCP_PAYLOAD_LIMITS.md](architecture/MCP_PAYLOAD_LIMITS.md) | MCP input validation and payload size limits |
 | [architecture/MCP_DEBUG_LOGGING_SECURITY.md](architecture/MCP_DEBUG_LOGGING_SECURITY.md) | MCP debug logging: opt-in, rotation, privacy |
 | [architecture/PERFORMANCE_OPTIMIZATIONS.md](architecture/PERFORMANCE_OPTIMIZATIONS.md) | Batch processing, concurrency, caching |
+
+Codemaps are hand-maintained snapshots. Regenerate them with `graph-it` before trusting file or line counts.
 
 ### Diagrams
 
@@ -56,9 +67,9 @@ The diagrams are being refreshed in #300; some content predates Branch Watch and
 
 | File | Description |
 |------|-------------|
-| [development/CODING_STANDARDS.md](development/CODING_STANDARDS.md) | TypeScript, layering and MCP conventions |
 | [development/CROSS_PLATFORM_TESTING.md](development/CROSS_PLATFORM_TESTING.md) | Windows, macOS and Linux path handling and testing |
 | [benchmarks/graph-context-benchmark.md](benchmarks/graph-context-benchmark.md) | Graph context benchmark |
+| [benchmarks/end-to-end-benchmarks.md](benchmarks/end-to-end-benchmarks.md) | End-to-end benchmark |
 
 ## Specifications
 
@@ -66,5 +77,13 @@ The diagrams are being refreshed in #300; some content predates Branch Watch and
 |------|-------------|
 | [specs/2026-07-17-graph-it-review-gate.md](specs/2026-07-17-graph-it-review-gate.md) | Review gate: `review-pr`, risk model, GitHub Action |
 | [specs/requirements/F4-user-stories.md](specs/requirements/F4-user-stories.md) | Community detection user stories (delivered, then replaced by path-based detection) |
+
+## Community
+
+| File | Description |
+|------|-------------|
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Contribution workflow and conventions |
+| [SECURITY.md](SECURITY.md) | How to report a vulnerability |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Contributor Covenant |
 
 Finished one-off documents (sprint notes, implemented specs and plans) were removed in #301; they remain in Git history.

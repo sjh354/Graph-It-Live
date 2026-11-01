@@ -11,13 +11,13 @@ paths:
 
 # Release Preparation
 
-Apply this file by explicit routing for any release preparation (docs, media, site, changelog, version, tag), even when no matched file is open. Order: docs PR → media and site PR → changelog PR → tag. Procedure: `CONTRIBUTING.md` *Releasing*.
+Apply this file by explicit routing for any release preparation (docs, media, site, changelog, version, tag), even when no matched file is open. Order: docs PR → media and site PR → changelog PR → tag. Procedure: `docs/CONTRIBUTING.md` *Releasing*.
 
 ## Documentation first
 
 Documentation must match shipped code before the changelog PR. Never tag over stale docs.
 
-1. Audit user-facing docs against code: `README.md`, `docs/CLI.md`, `docs/**`, `DEVELOPMENT.md`, `CONTRIBUTING.md`, plugin skills `plugins/graph-it-live/skills/*/SKILL.md` and `plugins/graph-it-live/README.md`.
+1. Audit user-facing docs against code: `README.md`, `docs/**`, plugin skills `plugins/graph-it-live/skills/*/SKILL.md` and `plugins/graph-it-live/README.md`.
 2. Check facts from source, not memory: CLI commands/options (`src/cli`), MCP tools and parameters (`src/mcp`), settings and commands (`package.json` `contributes`), file paths, counts, versions.
 3. Run `npm run sync:tool-descriptions -- --check`; fix drift.
 4. Update or remove stale content; mark finished one-off docs (sprints, specs) as historical or delete them.
