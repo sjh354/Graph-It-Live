@@ -14,7 +14,7 @@ suite('Webview Protocol - Context Value Side Effects', () => {
     this.timeout(30000);
     
     // Ensure extension is activated
-    const ext = vscode.extensions.getExtension('magic5644.graph-it-live');
+    const ext = vscode.extensions.getExtension('sjh354.structure-graph');
     assert.ok(ext, 'Extension should exist');
     await ext.activate();
     assert.strictEqual(ext.isActive, true, 'Extension should be active');
@@ -256,7 +256,7 @@ suite('Webview Protocol - Context Value Side Effects', () => {
       }
       
       // Extension should still be functional
-      const ext = vscode.extensions.getExtension('magic5644.graph-it-live');
+      const ext = vscode.extensions.getExtension('sjh354.structure-graph');
       assert.ok(ext, 'Extension should still exist');
       assert.strictEqual(ext.isActive, true, 'Extension should still be active');
     });

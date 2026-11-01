@@ -1,16 +1,16 @@
 {
-  "name": "graph-it-live",
-  "displayName": "Graph-It-Live",
-  "description": "AI-first dependency graph & code intelligence for VS Code. Visualize file imports, symbol call hierarchies, and cross-file call graphs. Detect circular dependencies, dead code, and breaking changes. Built-in MCP Server with 24 tools for GitHub Copilot, Cursor, Claude, Windsurf, and Antigravity. Generate AI-friendly codemaps. TypeScript, JavaScript, C#, Go, Java, Python, Rust, Vue, Svelte, GraphQL.",
-  "version": "0.0.1",
-  "publisher": "magic5644",
+  "name": "structure-graph",
+  "displayName": "Structure Graph",
+  "description": "AI-first dependency graph & code intelligence for VS Code. Visualize file imports, symbol call hierarchies, and cross-file call graphs. Detect circular dependencies, dead code, and breaking changes. Built-in MCP Server with 22 tools for GitHub Copilot, Cursor, Claude, Windsurf, and Antigravity. Generate AI-friendly codemaps. TypeScript, JavaScript, C#, Go, Java, Python, Rust, Vue, Svelte, GraphQL.",
+  "version": "0.0.2",
+  "publisher": "sjh354",
   "author": {
     "name": "magic56"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/magic5644/Graph-It-Live.git"
+    "url": "https://github.com/sjh354/Graph-It-Live.git"
   },
   "homepage": "https://github.com/sjh354/Graph-It-Live",
   "bugs": {
@@ -92,7 +92,7 @@
       "panel": [
         {
           "id": "graph-it-live-explorer",
-          "title": "Graph-It-Live",
+          "title": "Structure Graph",
           "icon": "$(type-hierarchy-sub)"
         }
       ]
@@ -111,95 +111,95 @@
       {
         "command": "graph-it-live.showGraph",
         "title": "Show Dependency Graph",
-        "category": "Graph-It-Live",
+        "category": "Structure Graph",
         "icon": "$(type-hierarchy-sub)"
       },
       {
         "command": "graph-it-live.forceReindex",
-        "title": "Force Graph-It-Live re-index",
-        "category": "Graph-It-Live"
+        "title": "Force Structure Graph re-index",
+        "category": "Structure Graph"
       },
       {
         "command": "graph-it-live.setWorkspace",
         "title": "Set Workspace Folder",
-        "category": "Graph-It-Live",
+        "category": "Structure Graph",
         "icon": "$(folder-opened)"
       },
       {
         "command": "graph-it-live.showIndexStatus",
-        "title": "Show Graph-It-Live index status",
-        "category": "Graph-It-Live"
+        "title": "Show Structure Graph index status",
+        "category": "Structure Graph"
       },
       {
         "command": "graph-it-live.expandAllNodes",
         "title": "Toggle Expand/Collapse All Nodes",
         "icon": "$(expand-all)",
-        "category": "Graph-It-Live"
+        "category": "Structure Graph"
       },
       {
         "command": "graph-it-live.refreshGraph",
         "title": "Refresh Graph",
         "icon": "$(refresh)",
-        "category": "Graph-It-Live"
+        "category": "Structure Graph"
       },
       {
         "command": "graph-it-live.toggleViewMode",
         "title": "Toggle View Mode (File ↔ Symbol)",
         "icon": "$(split-vertical)",
-        "category": "Graph-It-Live"
+        "category": "Structure Graph"
       },
       {
         "command": "graph-it-live.setViewModeFile",
         "title": "Switch to Graph View",
         "icon": "$(type-hierarchy-sub)",
-        "category": "Graph-It-Live"
+        "category": "Structure Graph"
       },
       {
         "command": "graph-it-live.setViewModeList",
         "title": "Switch to List View",
         "icon": "$(list-flat)",
-        "category": "Graph-It-Live"
+        "category": "Structure Graph"
       },
       {
         "command": "graph-it-live.setViewModeSymbol",
         "title": "Switch to Symbol View",
         "icon": "$(symbol-method)",
-        "category": "Graph-It-Live"
+        "category": "Structure Graph"
       },
       {
         "command": "graph-it-live.setViewModeArchitecture",
         "title": "Switch to Architecture View",
         "icon": "$(type-hierarchy)",
-        "category": "Graph-It-Live"
+        "category": "Structure Graph"
       },
       {
         "command": "graph-it-live.showReverseDependencies",
         "title": "Show Reverse Dependencies",
         "icon": "$(references)",
-        "category": "Graph-It-Live"
+        "category": "Structure Graph"
       },
       {
         "command": "graph-it-live.hideReverseDependencies",
         "title": "Hide Reverse Dependencies",
         "icon": "$(close)",
-        "category": "Graph-It-Live"
+        "category": "Structure Graph"
       },
       {
         "command": "graph-it-live.enableUnusedFilter",
         "title": "Filter Unused Dependencies",
         "icon": "$(eye)",
-        "category": "Graph-It-Live"
+        "category": "Structure Graph"
       },
       {
         "command": "graph-it-live.disableUnusedFilter",
         "title": "Show All Dependencies",
         "icon": "$(eye-closed)",
-        "category": "Graph-It-Live"
+        "category": "Structure Graph"
       },
       {
         "command": "graph-it-live.showCallGraph",
         "title": "Show Call Graph",
-        "category": "Graph-It-Live",
+        "category": "Structure Graph",
         "icon": "$(call-incoming)"
       }
     ],

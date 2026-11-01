@@ -98,7 +98,7 @@ async function measureFirstCallGraph(root: vscode.Uri, file: string): Promise<Sa
 export async function run(): Promise<void> {
   const { BENCH_VSCODE_FILE: file, BENCH_VSCODE_OUT: out } = process.env;
   const folder = vscode.workspace.workspaceFolders?.[0];
-  const extension = vscode.extensions.getExtension('magic5644.graph-it-live');
+  const extension = vscode.extensions.getExtension('sjh354.structure-graph');
   if (!file || !out || !folder || !extension) {
     throw new Error('Needs BENCH_VSCODE_FILE, BENCH_VSCODE_OUT, an open folder and the Graph-It-Live extension');
   }

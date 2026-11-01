@@ -40,7 +40,7 @@ function resolvePreferredWorkspaceFolder(): vscode.WorkspaceFolder | undefined {
 
 export function activate(context: vscode.ExtensionContext) {
     // Initialize logging system
-    const outputChannel = vscode.window.createOutputChannel('Graph-It-Live');
+    const outputChannel = vscode.window.createOutputChannel('Structure Graph');
     extensionLoggerManager.initialize(outputChannel);
     // Redirect shared loggers to the extension OutputChannel by setting the shared backend
     setLoggerBackend({
@@ -55,7 +55,7 @@ export function activate(context: vscode.ExtensionContext) {
     watchLogLevelConfig(context);
     
     const log = getExtensionLogger('Extension');
-    log.info('Graph-It-Live is now active!');
+    log.info('Structure Graph is now active!');
 
     const provider = new GraphProvider(context.extensionUri, context);
     graphProvider = provider; // Keep reference for deactivation

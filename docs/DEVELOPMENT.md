@@ -26,7 +26,7 @@ This guide provides comprehensive instructions for developing, building, testing
 1. **Clone the repository**:
 
 ```bash
-git clone https://github.com/magic5644/Graph-It-Live.git
+git clone https://github.com/sjh354/Graph-It-Live.git
 cd Graph-It-Live
 ```
 

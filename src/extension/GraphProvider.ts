@@ -876,7 +876,7 @@ export class GraphProvider implements vscode.WebviewViewProvider {
 
     const panel = vscode.window.createWebviewPanel(
       "graph-it-live.editorGraph",
-      "Graph-It-Live",
+      "Structure Graph",
       { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true },
       { ...this.webviewManager.getWebviewOptions(), retainContextWhenHidden: true },
     );

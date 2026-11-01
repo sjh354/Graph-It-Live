@@ -151,7 +151,7 @@ class ExtensionLoggerManager {
     let logger = this.loggers.get(prefix);
     if (!logger) {
       // Create output channel if not initialized
-      this.outputChannel ??= vscode.window.createOutputChannel('Graph-It-Live');
+      this.outputChannel ??= vscode.window.createOutputChannel('Structure Graph');
       logger = new VsCodeLogger(this.outputChannel, prefix, this.currentLevel);
       this.loggers.set(prefix, logger);
     }

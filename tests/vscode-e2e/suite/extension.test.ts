@@ -27,14 +27,14 @@ suite('Graph-It-Live Extension Test Suite', () => {
   });
 
   test('Extension should be present', () => {
-    assert.ok(vscode.extensions.getExtension('magic5644.graph-it-live'));
+    assert.ok(vscode.extensions.getExtension('sjh354.structure-graph'));
   });
 
   test('Extension should load from the isolated VSIX profile when requested', () => {
     const expectedExtensionDirectory = process.env.E2E_EXPECTED_VSIX_EXTENSION_DIR;
     if (!expectedExtensionDirectory) return;
 
-    const extension = vscode.extensions.getExtension('magic5644.graph-it-live');
+    const extension = vscode.extensions.getExtension('sjh354.structure-graph');
     assert.ok(extension, 'Packaged extension should be installed');
 
     const relativePath = path.relative(expectedExtensionDirectory, extension!.extensionPath);
@@ -57,7 +57,7 @@ suite('Graph-It-Live Extension Test Suite', () => {
   test('Extension should activate', async function() {
     this.timeout(30000); // Give extension time to activate and index
     
-    const ext = vscode.extensions.getExtension('magic5644.graph-it-live');
+    const ext = vscode.extensions.getExtension('sjh354.structure-graph');
     assert.ok(ext, 'Extension should exist');
     
     await ext!.activate();

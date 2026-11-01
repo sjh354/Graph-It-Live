@@ -27,7 +27,7 @@ suite('Call Graph Test Suite', () => {
   before(async function () {
     this.timeout(30000);
     vscode.window.showInformationMessage('Starting call graph tests');
-    const ext = vscode.extensions.getExtension('magic5644.graph-it-live');
+    const ext = vscode.extensions.getExtension('sjh354.structure-graph');
     assert.ok(ext, 'Extension should exist');
     if (!ext.isActive) {
       await ext.activate();

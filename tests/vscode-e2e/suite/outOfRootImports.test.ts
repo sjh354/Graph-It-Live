@@ -23,7 +23,7 @@ suite('Out-of-root imports (#264)', function () {
     if (!lmToolsSupported()) {
       this.skip();
     }
-    const extension = vscode.extensions.getExtension('magic5644.graph-it-live');
+    const extension = vscode.extensions.getExtension('sjh354.structure-graph');
     await extension?.activate();
     // Index from source rather than whatever .graph-it/cache an earlier run left behind.
     await vscode.commands.executeCommand('graph-it-live.forceReindex');

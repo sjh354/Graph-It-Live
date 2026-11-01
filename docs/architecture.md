@@ -399,7 +399,7 @@ A monorepo with serverless functions, a frontend, micro-frontends, a backend and
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/magic5644/Graph-It-Live/main/schemas/architecture.schema.json",
+  "$schema": "https://raw.githubusercontent.com/sjh354/Graph-It-Live/main/schemas/architecture.schema.json",
   "elements": {
     "functions": { "path": "functions/*", "each": true },
     "frontend": { "path": "frontend/" },

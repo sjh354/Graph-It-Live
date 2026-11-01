@@ -1,15 +1,8 @@
-# Graph-It-Live
+# Structure Graph
 
 **See your codebase as a graph — in VS Code and your AI assistant.**
 
-[![Version](https://vsmarketplacebadges.dev/version/magic5644.graph-it-live.svg)](https://marketplace.visualstudio.com/items?itemName=magic5644.graph-it-live)
-[![VS Code installs](https://vsmarketplacebadges.dev/installs-short/magic5644.graph-it-live.svg?label=vscode+installs)](https://marketplace.visualstudio.com/items?itemName=magic5644.graph-it-live)
-[![Open VSX](https://img.shields.io/open-vsx/v/magic5644/graph-it-live?label=Open%20VSX&logo=eclipse&logoColor=white)](https://open-vsx.org/extension/magic5644/graph-it-live)
-[![Open VSX Downloads](https://img.shields.io/open-vsx/dt/magic5644/graph-it-live?label=Open%20VSX%20Downloads)](https://open-vsx.org/extension/magic5644/graph-it-live)
-[![npm](https://img.shields.io/npm/v/%40magic5644%2Fgraph-it-live?label=npm%20CLI&logo=npm&logoColor=white)](https://www.npmjs.com/package/@magic5644/graph-it-live)
-[![License](https://img.shields.io/github/license/magic5644/Graph-It-Live)](LICENSE)
-
-Graph-It-Live analyzes imports, symbols, calls, cycles, unused exports, and change impact. Use it as a VS Code extension or an MCP/native tool provider for GitHub Copilot and other AI clients. Analysis runs locally and returns evidence from your codebase.
+Structure Graph analyzes imports, symbols, calls, cycles, unused exports, and change impact. Use it as a VS Code extension or an MCP/native tool provider for GitHub Copilot and other AI clients. Analysis runs locally and returns evidence from your codebase.
 
 ## Table of Contents
 
@@ -25,7 +18,7 @@ Graph-It-Live analyzes imports, symbols, calls, cycles, unused exports, and chan
 
 ## What it does
 
-Graph-It-Live provides three views of a codebase:
+Structure Graph provides three views of a codebase:
 
 | View | Answers | Analysis layer |
 | --- | --- | --- |
@@ -39,12 +32,11 @@ Use the same graph data to navigate code, review refactors, generate codemaps, a
 
 ### VS Code extension
 
-**Requirements:** VS Code 1.96 or later. Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=magic5644.graph-it-live) or [Open VSX](https://open-vsx.org/extension/magic5644/graph-it-live).
+**Requirements:** VS Code 1.96 or later. This is a local fork: run `npm install && npm run build`, then press **F5** to launch the Extension Development Host, or run `npm run package` and install the generated VSIX.
 
 1. Open a project.
-2. Run **Graph-It-Live: Show Dependency Graph** from the Command Palette; the view opens in the bottom panel.
-3. Run **Graph-It-Live: Show Dependency Graph** from the Command Palette.
-4. Click a file to open it, double-click it for the Symbol View, or use **Show Call Graph** for cross-file calls.
+2. Run **Structure Graph: Show Dependency Graph** from the Command Palette; the view opens in the bottom panel.
+3. Click a file to open it, double-click it for the Symbol View, or use **Show Call Graph** for cross-file calls.
 
 Supported projects include TypeScript, JavaScript, Python, Rust, C#, Go, Java, Vue, Svelte, and GraphQL.
 
@@ -57,7 +49,7 @@ Supported projects include TypeScript, JavaScript, Python, Rust, C#, Go, Java, V
 | Find callers | Open **Show Call Graph** with a symbol selected |
 | Find reverse dependencies | Use **Show Reverse Dependencies** |
 | Hide unused imports | Enable **Filter Unused Dependencies** |
-| Refresh analysis | Run **Refresh Graph** or **Force Graph-It-Live re-index** |
+| Refresh analysis | Run **Refresh Graph** or **Force Structure Graph re-index** |
 
 ## Features
 
@@ -114,7 +106,7 @@ Declare your intended architecture in `graphit.architecture.json` at the workspa
 
 ## AI integrations
 
-Graph-It-Live exposes local graph analysis to GitHub Copilot, Claude, Cursor, Windsurf, Antigravity, and other MCP-compatible clients.
+Structure Graph exposes local graph analysis to GitHub Copilot, Claude, Cursor, Windsurf, Antigravity, and other MCP-compatible clients.
 
 ### Native Copilot tools
 
@@ -217,8 +209,8 @@ Workspace indexing (extension and MCP) skips paths listed in the root `.gitignor
 Requirements: Node.js 22 or later and npm.
 
 ```bash
-git clone https://github.com/magic5644/Graph-It-Live.git
-cd Graph-It-Live
+git clone https://github.com/sjh354/Graph-It-Live.git
+cd graph-it-live
 npm install
 npm run build
 ```
@@ -243,12 +235,3 @@ MIT. See [LICENSE](LICENSE).
 
 Language icons are provided by [SuperTinyIcons](https://github.com/edent/SuperTinyIcons) under the CC0-1.0 license.
 
-## Star History
-
-<a href="https://www.star-history.com/?repos=magic5644%2FGraph-It-Live&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=magic5644/Graph-It-Live&type=date&theme=dark&legend=top-left&sealed_token=tKWEQ11VLzMx4dC3ZHvyM8J379zHlmU2lUlVABHWQ0yWeTNDwbvy9zxbYFSFiAod0MZ9RHDFy-KYuzkXEI37LhEfGiMP0nsPPtRiLlYlkl53OsTFff_MFSn2SNJXeoPlb3AzuInU8ln9JYhKJIZs4-LgsJ2R8z5pGIFFQBJmfiWvlywCcW-8XbztB03E" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=magic5644/Graph-It-Live&type=date&legend=top-left&sealed_token=tKWEQ11VLzMx4dC3ZHvyM8J379zHlmU2lUlVABHWQ0yWeTNDwbvy9zxbYFSFiAod0MZ9RHDFy-KYuzkXEI37LhEfGiMP0nsPPtRiLlYlkl53OsTFff_MFSn2SNJXeoPlb3AzuInU8ln9JYhKJIZs4-LgsJ2R8z5pGIFFQBJmfiWvlywCcW-8XbztB03E" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=magic5644/Graph-It-Live&type=date&legend=top-left&sealed_token=tKWEQ11VLzMx4dC3ZHvyM8J379zHlmU2lUlVABHWQ0yWeTNDwbvy9zxbYFSFiAod0MZ9RHDFy-KYuzkXEI37LhEfGiMP0nsPPtRiLlYlkl53OsTFff_MFSn2SNJXeoPlb3AzuInU8ln9JYhKJIZs4-LgsJ2R8z5pGIFFQBJmfiWvlywCcW-8XbztB03E" />
- </picture>
-</a>

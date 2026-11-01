@@ -4,7 +4,7 @@ import * as path from "node:path";
 
 /** The example of "Architecture rules" in the docs: what the generated workspace is checked against. */
 export const RULES_CONFIG = {
-  $schema: "https://raw.githubusercontent.com/magic5644/Graph-It-Live/main/schemas/architecture.schema.json",
+  $schema: "https://raw.githubusercontent.com/sjh354/Graph-It-Live/main/schemas/architecture.schema.json",
   elements: {
     functions: { path: "functions/*", each: true },
     frontend: { path: "frontend/" },

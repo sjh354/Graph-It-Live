@@ -16,7 +16,7 @@ suite('Incoming Calls Test Suite (Étape 5)', () => {
     vscode.window.showInformationMessage('Starting incoming calls tests');
     
     // Ensure extension is activated
-    const ext = vscode.extensions.getExtension('magic5644.graph-it-live');
+    const ext = vscode.extensions.getExtension('sjh354.structure-graph');
     if (ext && !ext.isActive) {
       await ext.activate();
     }

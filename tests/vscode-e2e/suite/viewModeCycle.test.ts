@@ -15,7 +15,7 @@ suite('View Mode Cycle E2E Tests', () => {
     this.timeout(60000);
 
     // Activate extension
-    const extension = vscode.extensions.getExtension('magic5644.graph-it-live');
+    const extension = vscode.extensions.getExtension('sjh354.structure-graph');
     if (!extension) {
       throw new Error('Extension not found');
     }

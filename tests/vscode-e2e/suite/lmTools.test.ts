@@ -64,7 +64,7 @@ function getRegisteredTools(): ReadonlyArray<{ name: string }> {
 suite('LM Tools Registration Test Suite', () => {
   before(async function () {
     this.timeout(30000);
-    const ext = vscode.extensions.getExtension('magic5644.graph-it-live');
+    const ext = vscode.extensions.getExtension('sjh354.structure-graph');
     assert.ok(ext, 'Extension should exist');
     if (!ext.isActive) {
       await ext.activate();
