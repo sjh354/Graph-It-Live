@@ -33,9 +33,29 @@ Groups follow the `graph-it-live.communityMode` setting (CLI `--communities`, MC
 - `path` (default): units, then folders. Units and folder levels exist only in this mode.
 - `louvain`: communities of files that import each other, one flat level.
 
-![Concepts: a workspace holds units, a unit holds folder groups, a group holds files; unit edges and file pairs link them](architecture/architecture-concepts.svg)
+```mermaid
+flowchart TB
+  workspace["Workspace"]
+  web["Unit apps/web<br/>package, role frontend<br/>layer 1"]
+  core["Unit packages/core<br/>package, role library<br/>layer 0"]
+  root["Unit root<br/>files outside every package"]
+  components["Group apps/web/components<br/>folder inside the unit"]
+  pages["Group apps/web/pages<br/>folder inside the unit"]
+  button["File Button.tsx"]
+  home["File Home.tsx"]
 
-*A workspace holds units; entering a unit shows its folder groups; entering a group shows its files. Source: [`architecture/architecture-concepts.mmd`](architecture/architecture-concepts.mmd).*
+  workspace --> web
+  workspace --> core
+  workspace --> root
+  web --> components
+  web --> pages
+  components --> button
+  pages --> home
+  web -. "unit edge: file pairs from apps/web to packages/core" .-> core
+  home -. "file pair: Home.tsx imports Button.tsx" .-> button
+```
+
+*A workspace holds units; entering a unit shows its folder groups; entering a group shows its files.*
 
 ## Read the view
 
@@ -482,6 +502,87 @@ The config is validated before anything runs; each error names its JSON path. A 
 
 ## How it is built
 
-![Graph-It-Live system architecture: the src/analyzer/architecture module and its consumers in the extension, the CLI and the MCP server](architecture/graph-it-live-architecture.svg)
+```mermaid
+flowchart LR
+  developer["Developer"]
+  assistant["AI assistant<br/>MCP or VS Code LM tools"]
+  ci["CI pipeline"]
 
-*`src/analyzer/architecture/` builds the file graph, units, roles, rules and matrix; the extension's `ArchitectureViewService`, the CLI commands `architecture` and `check-architecture`, and the MCP tools `explore_architecture` and `check_architecture` use it. Source: [`architecture/graph-it-live-architecture.mmd`](architecture/graph-it-live-architecture.mmd).*
+  subgraph vscode["VS Code"]
+    extension["src/extension<br/>GraphProvider, services"]
+    archService["ArchitectureViewService"]
+    webview["src/webview<br/>React, ReactFlow, Cytoscape"]
+  end
+
+  subgraph cli["src/cli: graph-it"]
+    cliArchitecture["architecture<br/>groups, units, folder, matrix"]
+    cliCheck["check-architecture<br/>exit code, SARIF, baseline"]
+    cliOther["scan, path, trace, summary,<br/>review-pr, serve, tool"]
+  end
+
+  subgraph mcp["src/mcp: MCP server, stdio"]
+    mcpExplore["explore_architecture"]
+    mcpCheck["check_architecture"]
+    mcpOther["other graph tools"]
+    worker["McpWorker"]
+  end
+
+  subgraph analyzer["src/analyzer: Node.js only, no vscode"]
+    spider["Spider, parsers, PathResolver,<br/>SourceFileCollector, ReverseIndex"]
+    callgraph["Call graph index<br/>Tree-sitter WASM, SQLite"]
+    subgraph archModule["src/analyzer/architecture"]
+      graphBuilder["ArchitectureGraphBuilder<br/>file graph, groups"]
+      units["architectureUnits<br/>units, layers, cycles"]
+      roles["unitRoles<br/>inferred or declared role"]
+      rules["architectureRules<br/>elements, rules, baseline"]
+      matrix["architectureMatrix<br/>dependency structure matrix"]
+      view["architectureView<br/>levels, caps, dependents"]
+      explorer["ArchitectureExplorer<br/>paged MCP and CLI views"]
+      dependents["groupDependents<br/>dependents by group"]
+    end
+  end
+
+  shared["src/shared<br/>types, messages, path utils"]
+  config[("graphit.architecture.json<br/>graphit.architecture.baseline.json")]
+
+  developer --> extension
+  developer --> cliArchitecture
+  assistant --> mcpExplore
+  assistant --> mcpCheck
+  assistant --> mcpOther
+  ci --> cliCheck
+
+  extension -- "typed messages" --> webview
+  extension --> archService
+  archService --> view
+  archService --> explorer
+  archService --> rules
+  cliArchitecture --> explorer
+  cliCheck --> rules
+  mcpExplore --> explorer
+  mcpCheck --> rules
+  mcpOther --> worker
+  worker --> spider
+  worker --> callgraph
+  cliOther --> spider
+
+  view --> explorer
+  view --> matrix
+  view --> dependents
+  view --> rules
+  explorer --> units
+  explorer --> rules
+  matrix --> units
+  dependents --> units
+  rules --> units
+  units --> roles
+  units --> graphBuilder
+  graphBuilder -. "analyze callback, injected by callers" .-> spider
+  rules -- "reads elements, rules, roles" --> config
+
+  analyzer --> shared
+  extension --> shared
+  webview --> shared
+```
+
+*`src/analyzer/architecture/` builds the file graph, units, roles, rules and matrix; the extension's `ArchitectureViewService`, the CLI commands `architecture` and `check-architecture`, and the MCP tools `explore_architecture` and `check_architecture` use it.*
