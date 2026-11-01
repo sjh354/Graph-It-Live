@@ -10,6 +10,7 @@ export const TOML_EXTENSIONS = ['.toml'] as const;
 export const CSHARP_EXTENSIONS = ['.cs', '.csproj'] as const;
 export const GO_EXTENSIONS = ['.go'] as const;
 export const JAVA_EXTENSIONS = ['.java'] as const;
+export const DART_EXTENSIONS = ['.dart'] as const;
 
 // Derived: All supported file extensions (deduced from language-specific constants)
 export const SUPPORTED_FILE_EXTENSIONS = [
@@ -24,6 +25,7 @@ export const SUPPORTED_FILE_EXTENSIONS = [
     ...CSHARP_EXTENSIONS,
     ...GO_EXTENSIONS,
     ...JAVA_EXTENSIONS,
+    ...DART_EXTENSIONS,
 ];
 
 // Derived: Extensions supported for LSP-based symbol analysis (TypeScript, JavaScript, Python, Rust)
@@ -35,7 +37,7 @@ export const SUPPORTED_SYMBOL_ANALYSIS_EXTENSIONS = [
 ];
 
 // Unified regex for source files we analyze across extension/webview/mcp
-export const SUPPORTED_SOURCE_FILE_REGEX = /\.(ts|tsx|js|jsx|mjs|cjs|vue|svelte|gql|graphql|py|pyi|rs|cs|csproj|go|java)$/;
+export const SUPPORTED_SOURCE_FILE_REGEX = /\.(ts|tsx|js|jsx|mjs|cjs|vue|svelte|gql|graphql|py|pyi|rs|cs|csproj|go|java|dart)$/;
 
 export const IGNORED_DIRECTORIES = [
     'node_modules',
@@ -50,10 +52,11 @@ export const IGNORED_DIRECTORIES = [
     '.venv',
     'venv',
     'target',
+    '.dart_tool',
 ];
 
 
-export const WATCH_GLOB = "**/*.{ts,tsx,js,jsx,mjs,cjs,vue,svelte,gql,graphql,py,pyi,rs,toml,cs,csproj,go,java}";
+export const WATCH_GLOB = "**/*.{ts,tsx,js,jsx,mjs,cjs,vue,svelte,gql,graphql,py,pyi,rs,toml,cs,csproj,go,java,dart}";
 /** graphit.architecture.json and its baseline (architectureRules.ts); the view reads them at the root only, so a nested match changes nothing. */
 export const ARCHITECTURE_RULES_GLOB = "**/graphit.architecture{,.baseline}.json";
 /**
@@ -90,6 +93,8 @@ export const LANGUAGE_COLORS: Record<string, string> = {
     go: '#00acd7',
     // Java
     java: '#f8981d',
+    // Dart
+    dart: '#0175c2',
     // Unknown/default
     unknown: '#6b6b6b',
 };
@@ -117,4 +122,5 @@ export const EXTENSION_COLORS: Record<string, string> = {
     '.csproj': LANGUAGE_COLORS.csharp,
     '.go': LANGUAGE_COLORS.go,
     '.java': LANGUAGE_COLORS.java,
+    '.dart': LANGUAGE_COLORS.dart,
 };

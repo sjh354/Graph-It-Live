@@ -61,6 +61,20 @@ export class SpiderSymbolService {
     }
 
     const key = normalizePath(filePath);
+
+    // Languages with their own symbol analyzer bypass ts-morph: Dart source is
+    // not TypeScript, so the AST worker would report bogus symbols for it.
+    if (path.extname(key).toLowerCase() === ".dart") {
+      const cachedDart = this.symbolCache.get(key);
+      if (cachedDart) return cachedDart;
+      const analyzer = this.languageService.getSymbolAnalyzer(key);
+      const symbols = await analyzer.analyzeFile(key);
+      const dependencies = await analyzer.getSymbolDependencies(key);
+      const result = { symbols: [...symbols.values()], dependencies };
+      this.symbolCache.set(key, result);
+      return result;
+    }
+
     // The AST worker parses every non-Python/Rust file with ts-morph, so other
     // languages (Go, C#, Java...) would yield bogus TypeScript symbols.
     if (this.isAstUnsupportedFile(key)) {

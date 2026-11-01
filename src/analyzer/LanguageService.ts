@@ -2,6 +2,8 @@ import path from "node:path";
 import { Parser } from "./Parser";
 import { SymbolAnalyzer } from "./SymbolAnalyzer";
 import { CSharpParser } from "./languages/CSharpParser";
+import { DartParser } from "./languages/DartParser";
+import { DartSymbolAnalyzer } from "./languages/DartSymbolAnalyzer";
 import { GoParser } from "./languages/GoParser";
 import { JavaParser } from "./languages/JavaParser";
 import { PythonParser } from "./languages/PythonParser";
@@ -21,6 +23,7 @@ export enum Language {
   CSharp = "csharp",
   Go = "go",
   Java = "java",
+  Dart = "dart",
   Unknown = "unknown",
 }
 
@@ -38,6 +41,8 @@ export class LanguageService {
   private static readonly csharpParsers = new Map<string, CSharpParser>();
   private static readonly goParsers = new Map<string, GoParser>();
   private static readonly javaParsers = new Map<string, JavaParser>();
+  private static readonly dartParsers = new Map<string, DartParser>();
+  private static readonly dartSymbolAnalyzers = new Map<string, DartSymbolAnalyzer>();
 
   private readonly rootDir?: string;
   private readonly extensionPath?: string;
@@ -103,6 +108,9 @@ export class LanguageService {
 
       case ".java":
         return Language.Java;
+
+      case ".dart":
+        return Language.Dart;
 
       default:
         return Language.Unknown;
@@ -183,6 +191,17 @@ export class LanguageService {
         this.javaParsers.set(cacheKey, created);
         return created;
       }
+
+      case Language.Dart: {
+        const cacheKey = this.buildCacheKey(rootDir, extensionPath);
+        const cached = this.dartParsers.get(cacheKey);
+        if (cached) {
+          return cached;
+        }
+        const created = new DartParser(rootDir, extensionPath);
+        this.dartParsers.set(cacheKey, created);
+        return created;
+      }
       default:
         throw new Error(`Unsupported language for file: ${filePath}`);
     }
@@ -234,6 +253,17 @@ export class LanguageService {
         return created;
       }
 
+      case Language.Dart: {
+        const cacheKey = this.buildCacheKey(rootDir, extensionPath);
+        const cached = this.dartSymbolAnalyzers.get(cacheKey);
+        if (cached) {
+          return cached;
+        }
+        const created = new DartSymbolAnalyzer(rootDir, extensionPath);
+        this.dartSymbolAnalyzers.set(cacheKey, created);
+        return created;
+      }
+
       default:
         throw new Error(`Unsupported language for file: ${filePath}`);
     }
@@ -259,6 +289,8 @@ export class LanguageService {
     this.csharpParsers.clear();
     this.goParsers.clear();
     this.javaParsers.clear();
+    this.dartParsers.clear();
+    this.dartSymbolAnalyzers.clear();
   }
 
   /** Release parsers owned by an ephemeral workspace without disturbing active projects. */
@@ -266,7 +298,7 @@ export class LanguageService {
     const prefix = `${rootDir}\u0000`;
     for (const cache of [this.typeScriptParsers, this.typeScriptSymbolAnalyzers, this.pythonParsers,
       this.pythonSymbolAnalyzers, this.rustParsers, this.rustSymbolAnalyzers, this.csharpParsers,
-      this.goParsers, this.javaParsers]) {
+      this.goParsers, this.javaParsers, this.dartParsers, this.dartSymbolAnalyzers]) {
       for (const key of cache.keys()) if (key.startsWith(prefix)) cache.delete(key);
     }
   }

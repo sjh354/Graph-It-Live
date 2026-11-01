@@ -38,7 +38,7 @@ Use the same graph data to navigate code, review refactors, generate codemaps, a
 2. Run **Structure Graph: Show Dependency Graph** from the Command Palette; the view opens in the bottom panel.
 3. Click a file to open it, double-click it for the Symbol View, or use **Show Call Graph** for cross-file calls.
 
-Supported projects include TypeScript, JavaScript, Python, Rust, C#, Go, Java, Vue, Svelte, and GraphQL.
+Supported projects include TypeScript, JavaScript, Python, Rust, C#, Go, Java, Dart, Vue, Svelte, and GraphQL.
 
 ### First useful actions
 
@@ -63,7 +63,7 @@ Supported projects include TypeScript, JavaScript, Python, Rust, C#, Go, Java, V
 
 ### Symbol View
 
-Drill into TypeScript, JavaScript, Python, or Rust files to see functions, classes, variables, outgoing calls, incoming callers, and recursive calls. Click a symbol to navigate to its definition.
+Drill into TypeScript, JavaScript, Python, Rust, or Dart files to see functions, classes, variables, outgoing calls, incoming callers, and recursive calls. Click a symbol to navigate to its definition.
 
 ### Live Call Graph
 
@@ -76,7 +76,7 @@ The Live Call Graph shows cross-file symbol relationships in a Cytoscape.js pane
 - Filter by symbol type or folder.
 - Refresh automatically after file saves.
 
-The Live Call Graph supports TypeScript, JavaScript, Vue, Svelte, Python, Rust, C#, Go, Java, and GraphQL. C#, Go, Java, and GraphQL are supported in the file graph and Live Call Graph; Symbol View support is currently limited to TypeScript, JavaScript, Python, and Rust. In GraphQL, operations and fragments call the fragments they spread; an operation's default root type (`Query`, `Mutation`, `Subscription`), type conditions, field, argument and variable types, and union members are type-only references (`USES`, shown with `includeTypeOnly`); `implements` is an `IMPLEMENTS` edge.
+The Live Call Graph supports TypeScript, JavaScript, Vue, Svelte, Python, Rust, C#, Go, Java, and GraphQL. C#, Go, Java, and GraphQL are supported in the file graph and Live Call Graph; Symbol View support is currently limited to TypeScript, JavaScript, Python, Rust, and Dart. Dart's file graph and Symbol View are syntactic: a cross-file call graph for Dart is not built yet. In GraphQL, operations and fragments call the fragments they spread; an operation's default root type (`Query`, `Mutation`, `Subscription`), type conditions, field, argument and variable types, and union members are type-only references (`USES`, shown with `includeTypeOnly`); `implements` is an `IMPLEMENTS` edge.
 
 ### Architecture view
 
@@ -196,6 +196,7 @@ Workspace indexing (extension and MCP) skips paths listed in the root `.gitignor
 | Python | Yes | Yes | Yes |
 | Rust | Yes | Yes | Yes |
 | C# / Go / Java | Yes | No | Yes |
+| Dart | Yes | Yes | No |
 | GraphQL | Yes | No | Yes |
 
 ## Documentation
