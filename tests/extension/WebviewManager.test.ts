@@ -172,10 +172,10 @@ describe("WebviewManager", () => {
       expect(html).toContain('<meta name="viewport" content="width=device-width, initial-scale=1.0">');
     });
 
-    it("should set document title to Graph-It-Live", () => {
+    it("should set document title to Structure Graph", () => {
       const html = webviewManager.getHtmlForWebview(mockWebview);
 
-      expect(html).toContain("<title>Graph-It-Live</title>");
+      expect(html).toContain("<title>Structure Graph</title>");
     });
 
     it("should set proper charset encoding", () => {
