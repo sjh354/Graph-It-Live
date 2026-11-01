@@ -92,8 +92,6 @@ vitest.benchmark.config.mts
 vitest.memory.config.mts
 sonar-project.properties
 package-lock.json
-.markdownlint.json
-.markdownlintignore
 skills-lock.json
 tsconfig.eslint.json
 
