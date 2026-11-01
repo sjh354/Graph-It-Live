@@ -77,6 +77,8 @@ function toSupportedLang(languageId: string): SupportedLang | null {
       return "go";
     case "java":
       return "java";
+    case "dart":
+      return "dart";
     default:
       return null;
   }
@@ -274,7 +276,7 @@ export class CallGraphViewService implements vscode.Disposable, ICallGraphQueryS
     const lang = toSupportedLang(editor.document.languageId) ?? langFromPath(editor.document.uri.fsPath);
     if (!lang) {
       await vscode.window.showInformationMessage(
-        `Graph-It-Live: Call Graph is not supported for "${editor.document.languageId}". Supported: TypeScript, JavaScript, Vue, Svelte, Python, Rust, C#, Go, Java, GraphQL.`,
+        `Graph-It-Live: Call Graph is not supported for "${editor.document.languageId}". Supported: TypeScript, JavaScript, Vue, Svelte, Python, Rust, C#, Go, Java, Dart, GraphQL.`,
       );
       return;
     }

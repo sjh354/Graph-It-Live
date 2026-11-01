@@ -76,7 +76,7 @@ The Live Call Graph shows cross-file symbol relationships in a Cytoscape.js pane
 - Filter by symbol type or folder.
 - Refresh automatically after file saves.
 
-The Live Call Graph supports TypeScript, JavaScript, Vue, Svelte, Python, Rust, C#, Go, Java, and GraphQL. C#, Go, Java, and GraphQL are supported in the file graph and Live Call Graph; Symbol View support is currently limited to TypeScript, JavaScript, Python, Rust, and Dart. Dart's file graph and Symbol View are syntactic: a cross-file call graph for Dart is not built yet. In GraphQL, operations and fragments call the fragments they spread; an operation's default root type (`Query`, `Mutation`, `Subscription`), type conditions, field, argument and variable types, and union members are type-only references (`USES`, shown with `includeTypeOnly`); `implements` is an `IMPLEMENTS` edge.
+The Live Call Graph supports TypeScript, JavaScript, Vue, Svelte, Python, Rust, C#, Go, Java, Dart, and GraphQL. C#, Go, Java, and GraphQL are supported in the file graph and Live Call Graph; Symbol View support is currently limited to TypeScript, JavaScript, Python, Rust, and Dart. Dart analysis is syntactic: imports resolve through package_config.json or the owning pubspec, and a cross-file call is linked only when its symbol name is unique in the workspace. In GraphQL, operations and fragments call the fragments they spread; an operation's default root type (`Query`, `Mutation`, `Subscription`), type conditions, field, argument and variable types, and union members are type-only references (`USES`, shown with `includeTypeOnly`); `implements` is an `IMPLEMENTS` edge.
 
 ### Architecture view
 
@@ -196,7 +196,7 @@ Workspace indexing (extension and MCP) skips paths listed in the root `.gitignor
 | Python | Yes | Yes | Yes |
 | Rust | Yes | Yes | Yes |
 | C# / Go / Java | Yes | No | Yes |
-| Dart | Yes | Yes | No |
+| Dart | Yes | Yes | Yes |
 | GraphQL | Yes | No | Yes |
 
 ## Documentation

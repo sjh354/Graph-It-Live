@@ -37,6 +37,7 @@ import { Query } from "web-tree-sitter";
 import type { CallGraphEdge, CallGraphNode } from "./CallGraphIndexer";
 import { resolveNamedImportCalls } from "./importBindings";
 import { LOCAL_ONLY, resolvePythonImportCalls } from "./pythonImportBindings";
+import { extractDart } from "./dartCallGraphExtractor";
 import { extractGraphQL } from "./graphqlExtractor";
 import { QUALIFIED_PREFIX, resolveQualifiedCalls, rustImplOwner } from "./qualifiedCalls";
 
@@ -200,8 +201,9 @@ export class GraphExtractor {
     source: string,
   ): Promise<ExtractionResult> {
     const normalizedPath = normalizePath(filePath);
-    // No tree-sitter grammar ships for GraphQL: it has its own scanner.
+    // No tree-sitter grammar ships for GraphQL or Dart: both have their own scanners.
     if (lang === "graphql") return extractGraphQL(source, normalizedPath, this.computeFolder(normalizedPath));
+    if (lang === "dart") return extractDart(source, normalizedPath, this.computeFolder(normalizedPath));
 
     // Resolve WASM paths
     const treeSitterWasmPath = path.join(
@@ -537,6 +539,8 @@ export class GraphExtractor {
         return "tree-sitter-java.wasm";
       case "graphql":
         throw new Error("GraphQL is extracted without tree-sitter");
+      case "dart":
+        throw new Error("Dart is extracted without tree-sitter");
     }
   }
 }
@@ -580,6 +584,8 @@ export function fileExtToLang(filePath: string): SupportedLang | null {
     case ".graphql":
     case ".gql":
       return "graphql";
+    case ".dart":
+      return "dart";
     default:
       return null;
   }
@@ -619,7 +625,7 @@ export async function getQueryFreshnessCutoffs(
   extensionPath: string,
 ): Promise<Record<SupportedLang, number>> {
   const queryDir = path.join(extensionPath, "dist", "queries");
-  const queryFiles: Record<Exclude<SupportedLang, "graphql">, string> = {
+  const queryFiles: Record<Exclude<SupportedLang, "graphql" | "dart">, string> = {
     typescript: path.join(queryDir, "typescript.scm"),
     javascript: path.join(queryDir, "typescript.scm"),
     python: path.join(queryDir, "python.scm"),
@@ -643,8 +649,9 @@ export async function getQueryFreshnessCutoffs(
     ),
   );
 
-  // GraphQL has no query file: its rules live in graphqlExtractor.ts.
-  return { ...Object.fromEntries(entries), graphql: 0 } as Record<SupportedLang, number>;
+  // GraphQL has no query file: its rules live in graphqlExtractor.ts, and
+  // Dart keeps its scanner in dartCallGraphExtractor.ts.
+  return { ...Object.fromEntries(entries), graphql: 0, dart: 0 } as Record<SupportedLang, number>;
 }
 
 /**
