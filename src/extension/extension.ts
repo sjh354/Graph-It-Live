@@ -40,7 +40,7 @@ function resolvePreferredWorkspaceFolder(): vscode.WorkspaceFolder | undefined {
 
 export function activate(context: vscode.ExtensionContext) {
     // Initialize logging system
-    const outputChannel = vscode.window.createOutputChannel('Structure Graph');
+    const outputChannel = extensionLoggerManager.getOutputChannel();
     extensionLoggerManager.initialize(outputChannel);
     // Redirect shared loggers to the extension OutputChannel by setting the shared backend
     setLoggerBackend({

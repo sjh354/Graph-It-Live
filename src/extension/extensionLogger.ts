@@ -107,6 +107,8 @@ export class VsCodeLogger implements ILogger {
  * Extension Logger Manager
  * Singleton that manages the VS Code output channel and logger instances
  */
+const OUTPUT_CHANNEL_NAME = 'Structure Graph';
+
 class ExtensionLoggerManager {
   private outputChannel: vscode.OutputChannel | undefined;
   private readonly loggers: Map<string, VsCodeLogger> = new Map();
@@ -116,6 +118,15 @@ class ExtensionLoggerManager {
    * Initialize the logger manager with an output channel
    * Call this once during extension activation
    */
+  /**
+   * The single output channel of the extension. Loggers created at import time
+   * already made one, so activation must reuse it rather than create a second.
+   */
+  getOutputChannel(): vscode.OutputChannel {
+    this.outputChannel ??= vscode.window.createOutputChannel(OUTPUT_CHANNEL_NAME);
+    return this.outputChannel;
+  }
+
   initialize(outputChannel: vscode.OutputChannel): void {
     this.outputChannel = outputChannel;
     // Re-create existing loggers with the new output channel
@@ -151,7 +162,7 @@ class ExtensionLoggerManager {
     let logger = this.loggers.get(prefix);
     if (!logger) {
       // Create output channel if not initialized
-      this.outputChannel ??= vscode.window.createOutputChannel('Structure Graph');
+      this.outputChannel ??= vscode.window.createOutputChannel(OUTPUT_CHANNEL_NAME);
       logger = new VsCodeLogger(this.outputChannel, prefix, this.currentLevel);
       this.loggers.set(prefix, logger);
     }

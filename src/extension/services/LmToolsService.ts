@@ -196,7 +196,7 @@ export class LmToolsService {
       this.logger.warn('vscode.lm.registerTool not available — Native LM Tools disabled.');
       return [];
     }
-    this.logger.info('Registering Graph-It-Live native Language Model Tools');
+    this.logger.info('Registering Structure Graph native Language Model Tools');
     return [
       this.registerFindReferencingFiles(),
       this.registerAnalyzeDependencies(),
