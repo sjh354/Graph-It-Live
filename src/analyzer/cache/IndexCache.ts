@@ -26,8 +26,8 @@ const log = getLogger("IndexCache");
 /** Layout version of .graph-it/cache/ itself. Bump when file names or roles change. */
 export const INDEX_CACHE_SCHEMA = 2;
 
-/** Injected at build time into every Node bundle; "0.0.0-dev" in local builds. */
-const ANALYZER_VERSION = process.env.CLI_VERSION ?? "0.0.0-dev";
+/** Injected at build time into every Node bundle; "0.0.0-dev" outside a bundle. */
+const ANALYZER_VERSION = process.env.APP_VERSION ?? "0.0.0-dev";
 
 /**
  * Above this fraction of added/changed/deleted files, a full rebuild is cheaper

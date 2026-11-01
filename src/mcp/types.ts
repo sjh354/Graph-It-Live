@@ -30,7 +30,7 @@ import {
 export const MCP_TOOL_VERSION = "1.1.0";
 
 /** Package version reported as `serverInfo.version`; esbuild `define` stamps it at build time (CI sets it from the tag). */
-export const MCP_SERVER_VERSION = process.env.CLI_VERSION ?? "0.0.0-dev";
+export const MCP_SERVER_VERSION = process.env.APP_VERSION ?? "0.0.0-dev";
 
 // ============================================================================
 // Worker Message Protocol

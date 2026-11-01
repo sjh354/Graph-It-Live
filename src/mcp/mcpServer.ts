@@ -270,7 +270,7 @@ const McpToolResponseSchema = z.object({
 // ============================================================================
 
 const server = new McpServer({
-  name: "graph-it-live",
+  name: "structure-graph",
   version: MCP_SERVER_VERSION,
 });
 

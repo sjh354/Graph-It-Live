@@ -10,6 +10,8 @@ function stderr(line) {
   process.stderr.write(line.endsWith('\n') ? line : `${line}\n`);
 }
 
+const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
 
@@ -181,6 +183,7 @@ function nodeBundle(entryPoint, outfile, extra = {}) {
     metafile: !!metafilePath,
     loader: { '.wasm': 'file' },
     // Every Node bundle stamps the shared .graph-it/cache/ guard with the same version.
+    define: { 'process.env.APP_VERSION': JSON.stringify(pkg.version) },
     ...extra,
   };
 }

@@ -397,15 +397,15 @@ describe('MCP_SERVER_VERSION', () => {
     vi.resetModules();
   });
 
-  it('reports the package version stamped into CLI_VERSION', async () => {
-    vi.stubEnv('CLI_VERSION', '1.21.1');
+  it('reports the package version stamped into APP_VERSION', async () => {
+    vi.stubEnv('APP_VERSION', '1.21.1');
     vi.resetModules();
     const { MCP_SERVER_VERSION } = await import('../../src/mcp/types');
     expect(MCP_SERVER_VERSION).toBe('1.21.1');
   });
 
   it('falls back to 0.0.0-dev when no version was stamped', async () => {
-    vi.stubEnv('CLI_VERSION', undefined);
+    vi.stubEnv('APP_VERSION', undefined);
     vi.resetModules();
     const { MCP_SERVER_VERSION } = await import('../../src/mcp/types');
     expect(MCP_SERVER_VERSION).toBe('0.0.0-dev');
