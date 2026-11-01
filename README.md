@@ -419,7 +419,6 @@ Use `pull_request`, not `pull_request_target`, for untrusted pull requests. The 
 - [Design decisions](docs/DESIGN.md) — product scope, responsibilities, and why
 - [Development guide](docs/DEVELOPMENT.md) — setup, builds, tests, and WASM architecture
 - [Architecture guide](docs/architecture.md) — Architecture view, `graphit.architecture.json` rules, and `check-architecture`
-- [Documentation index](docs/README.md) — every other document
 
 ## Development
 

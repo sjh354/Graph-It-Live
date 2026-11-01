@@ -17,4 +17,6 @@ paths:
 - Keep each touched source file at or above 80% coverage.
 - A class instantiated with `new` must use a constructible mock, for example `vi.fn().mockImplementation(function () { ... })`; arrow-function constructor mocks throw.
 - Use `@/` imports and existing fixtures. Include Windows separators, drive letters, and case behavior in new path tests.
+- Cross-platform tests: build paths with `node:path`, prefer `path.isAbsolute()` over a leading `/` check, and normalize line endings (`\r\n`/`\n`) when comparing file content.
+- CI runs unit tests on Linux, macOS and Windows; cross-OS E2E runs in `.github/workflows/e2e-os.yml`. Test locally and let CI cover the other platforms.
 - Run smallest relevant test during iteration, then required unit/E2E/coverage checks for changed scope.

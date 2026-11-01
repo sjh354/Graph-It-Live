@@ -60,5 +60,5 @@ Read only the files the routing table selects; do not load `.agents/rules/` whol
 - `.agents/AGENTS.md` — this file, the only copy. Load it explicitly; there is no root `AGENTS.md` or `CLAUDE.md`.
 - `.agents/rules/` — agent working rules (this table's targets). Nothing else.
 - `docs/DESIGN.md` — product and design decisions, and why.
-- `docs/README.md` — index of every other document.
+- `docs/DEVELOPMENT.md` — setup, build, tests and troubleshooting.
 - `README.md` — user-facing setup and features.

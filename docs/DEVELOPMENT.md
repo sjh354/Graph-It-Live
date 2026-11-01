@@ -361,9 +361,7 @@ Validation is enforced during pull requests (not via scheduled nightly workflows
 1. Reusable CI fails if `.map` files are found in the VSIX.
 2. Reusable CI checks that expected WASM files are present in the VSIX.
 3. Reusable CI reports package size for review.
-4. PRs must include evidence in `.github/pull_request_template.md`.
-
-For review consistency, keep the PR template aligned with the review checklist.
+4. PRs must include the validation evidence (commands and outcomes) in the description.
 
 ### Troubleshooting Package Issues
 
@@ -461,7 +459,7 @@ code --install-extension graph-it-live-*.vsix  # check install in a clean VS Cod
 
 ### Cross-Platform Development
 
-All code and tests must work on Windows, Linux, and macOS. Path rules, forbidden patterns, and test cases: [development/CROSS_PLATFORM_TESTING.md](development/CROSS_PLATFORM_TESTING.md).
+All code and tests must work on Windows, Linux, and macOS. Build paths with `node:path`, normalize with `normalizePath()` before path keys enter Sets or Maps, prefer `path.isAbsolute()` over a leading `/` check, and normalize line endings when comparing file content. The binding rules are in [`.agents/rules/testing.md`](../.agents/rules/testing.md).
 
 ## Troubleshooting
 
@@ -583,9 +581,7 @@ vi.mock('@/analyzer/languages/WasmParserFactory', () => ({
 
 ## Additional Resources
 
-- [Cross-platform testing](development/CROSS_PLATFORM_TESTING.md)
 - [`.agents/AGENTS.md`](../.agents/AGENTS.md): agent working rules
-- [docs/README.md](README.md): index of every other document
 
 ## Getting Help
 
