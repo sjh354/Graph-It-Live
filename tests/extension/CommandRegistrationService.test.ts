@@ -117,8 +117,8 @@ describe('CommandRegistrationService', () => {
 
     const disposables = service.registerAll();
 
-    expect(disposables).toHaveLength(16); // getContext is shared; filter commands share one disposable
-    expect(registerCommand).toHaveBeenCalledTimes(17);
+    expect(disposables).toHaveLength(15); // getContext is shared; filter commands share one disposable
+    expect(registerCommand).toHaveBeenCalledTimes(16);
     expect(registeredHandlers.has('graph-it-live.showGraph')).toBe(true);
     expect(registeredHandlers.has('graph-it-live.forceReindex')).toBe(true);
     expect(registeredHandlers.has('graph-it-live.expandAllNodes')).toBe(true);
@@ -134,7 +134,6 @@ describe('CommandRegistrationService', () => {
     expect(registeredHandlers.has('graph-it-live.enableUnusedFilter')).toBe(true);
     expect(registeredHandlers.has('graph-it-live.disableUnusedFilter')).toBe(true);
     expect(registeredHandlers.has('graph-it-live.showIndexStatus')).toBe(true);
-    expect(registeredHandlers.has('graph-it-live.reviewCallGraph')).toBe(true);
   });
 
   it('switches to the architecture view and exposes its E2E state through getContext', async () => {
@@ -279,32 +278,4 @@ describe('CommandRegistrationService', () => {
     expect((commandCoordinator.handleShowIndexStatus as ReturnType<typeof vi.fn>)).toHaveBeenCalled();
   });
 
-  it('forwards only validated review call graph targets', async () => {
-    const provider = createProviderMock();
-    const service = new CommandRegistrationService({ provider, commandCoordinator: createCommandCoordinatorMock(), logger: createLoggerMock() });
-    service.registerAll();
-    const handler = registeredHandlers.get('graph-it-live.reviewCallGraph');
-
-    await handler?.({ file: 'src/api.ts', symbol: 'greet', depth: 3 });
-    expect(provider.showReviewCallGraph).toHaveBeenCalledWith('src/api.ts', 'greet', 3);
-
-    for (const target of [undefined, null, 'src/api.ts', {}, { file: '' }, { file: '/tmp/api.ts' }, { file: 'src/api.ts', symbol: '' }, { file: 'src/api.ts', depth: '3' }, { file: 'src/api.ts', depth: Number.NaN }]) {
-      await handler?.(target);
-    }
-    expect(showErrorMessage).toHaveBeenCalledTimes(9);
-    expect(showErrorMessage).toHaveBeenLastCalledWith('Graph-It-Live: Invalid review link');
-    expect(provider.showReviewCallGraph).toHaveBeenCalledTimes(1);
-  });
-
-  it('reports provider failures for valid review call graph targets', async () => {
-    const provider = createProviderMock();
-    const logger = createLoggerMock();
-    (provider.showReviewCallGraph as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('graph unavailable'));
-    new CommandRegistrationService({ provider, commandCoordinator: createCommandCoordinatorMock(), logger }).registerAll();
-
-    await registeredHandlers.get('graph-it-live.reviewCallGraph')?.({ file: 'src/api.ts', depth: 1 });
-
-    expect(logger.error).toHaveBeenCalledWith('graph-it-live.reviewCallGraph failed:', expect.any(Error));
-    expect(showErrorMessage).toHaveBeenCalledWith('Graph-It-Live: Invalid review link');
-  });
 });

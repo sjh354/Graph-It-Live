@@ -19,7 +19,6 @@ vi.mock("../../../src/shared/pathSecurity", async (importOriginal) => ({
   validateFileExists: vi.fn(),
 }));
 
-import { run as runArchitectureCli } from "../../../src/cli/commands/architecture";
 import { workerState } from "../../../src/mcp/shared/state";
 import { executeExploreArchitecture } from "../../../src/mcp/tools/architecture";
 import { ExploreArchitectureParamsSchema } from "../../../src/mcp/types";
@@ -55,21 +54,13 @@ describe("executeExploreArchitecture", () => {
     vi.clearAllMocks();
   });
 
-  it("summarises groups and group edges with the same counts as graph-it architecture --groups", async () => {
+  it("summarises groups and group edges", async () => {
     const summary = await executeExploreArchitecture({});
-    const cli = JSON.parse(await runArchitectureCli(
-      ["--groups"],
-      { workspaceRoot, ensureIndexed: vi.fn(), loadState: () => null } as never,
-      "json",
-    ));
 
     expect(summary.view).toBe("summary");
-    expect(summary.totals).toEqual(cli.totals);
     expect(summary.totals).toEqual({ files: 5, fileEdges: 5, intraGroupEdges: 1, interGroupEdges: 4 });
-    expect(summary).toMatchObject({ unassigned: cli.unassigned, groups: expect.arrayContaining(cli.groups) });
     expect(summary.groups.map(group => group.key)).toEqual(["api", "db"]);
     expect(summary.groupEdges[0]).toMatchObject({ fromLabel: "api", toLabel: "db", fileEdgeCount: 3 });
-    expect(summary.groupEdges).toHaveLength(cli.groupEdges.length);
     expect(summary.context).toMatchObject({ communityMode: "path", graphKind: "imports", truncated: false });
     expect(summary.provenance.facts).toContain("static import relations");
     expect(summary.page).toMatchObject({ totalGroups: 2, totalGroupEdges: 2, truncated: false, nextOffset: undefined });
@@ -158,11 +149,9 @@ describe("executeExploreArchitecture", () => {
     }
   });
 
-  it("returns the matrix of the groups, the units or a folder, as graph-it architecture --matrix", async () => {
-    const runtime = { workspaceRoot, ensureIndexed: vi.fn(), loadState: () => null } as never;
+  it("returns the matrix of the groups, the units or a folder", async () => {
     const groups = await executeExploreArchitecture({ view: "matrix" });
-    const cli = JSON.parse(await runArchitectureCli(["--matrix"], runtime, "json"));
-    expect(groups).toMatchObject({ view: "matrix", rows: cli.rows, cells: cli.cells, totals: cli.totals, page: { total: cli.totals.cells } });
+    expect(groups).toMatchObject({ view: "matrix" });
     // db (layer 0), api, then the unassigned index.ts; api → db carries 3 pairs, db 1 inside.
     expect(groups.rows.map(row => row.label)).toEqual(["db", "api", "unassigned"]);
     expect(groups.cells).toContainEqual({ row: 1, column: 0, fileEdgeCount: 3, upward: false });

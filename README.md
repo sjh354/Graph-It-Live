@@ -1,6 +1,6 @@
 # Graph-It-Live
 
-**See your codebase as a graph — in VS Code, your CLI, and your AI assistant.**
+**See your codebase as a graph — in VS Code and your AI assistant.**
 
 [![Version](https://vsmarketplacebadges.dev/version/magic5644.graph-it-live.svg)](https://marketplace.visualstudio.com/items?itemName=magic5644.graph-it-live)
 [![VS Code installs](https://vsmarketplacebadges.dev/installs-short/magic5644.graph-it-live.svg?label=vscode+installs)](https://marketplace.visualstudio.com/items?itemName=magic5644.graph-it-live)
@@ -9,17 +9,15 @@
 [![npm](https://img.shields.io/npm/v/%40magic5644%2Fgraph-it-live?label=npm%20CLI&logo=npm&logoColor=white)](https://www.npmjs.com/package/@magic5644/graph-it-live)
 [![License](https://img.shields.io/github/license/magic5644/Graph-It-Live)](LICENSE)
 
-Graph-It-Live analyzes imports, symbols, calls, cycles, unused exports, and change impact. Use it as a VS Code extension, a standalone CLI, or an MCP/native tool provider for GitHub Copilot and other AI clients. Analysis runs locally and returns evidence from your codebase.
+Graph-It-Live analyzes imports, symbols, calls, cycles, unused exports, and change impact. Use it as a VS Code extension or an MCP/native tool provider for GitHub Copilot and other AI clients. Analysis runs locally and returns evidence from your codebase.
 
 ## Table of Contents
 
 - [What it does](#what-it-does)
 - [Quick start](#quick-start)
 - [Features](#features)
-- [Standalone CLI](#standalone-cli)
 - [AI integrations](#ai-integrations)
 - [Configuration](#configuration)
-- [CI review gate](#ci-review-gate)
 - [Supported languages](#supported-languages)
 - [Documentation](#documentation)
 - [Development](#development)
@@ -100,11 +98,11 @@ Quick start:
 4. Select a node, then *Dependents by group* to see every group that imports it.
 5. Click *Matrix* for the dependency structure matrix of the level.
 
-The CLI (`graph-it architecture --level units`) and the MCP tool `explore_architecture` report the same counts.
+The Architecture view and the MCP tool `explore_architecture` report the same counts.
 
 ### Architecture rules
 
-Declare your intended architecture in `graphit.architecture.json` at the workspace root: `elements` name sets of files, `rules` say what each may import, and `roles` declare what each unit is. The view lists each rule with its violations; `graph-it check-architecture` exits with 1 on a new `error` violation, so it can gate CI, with SARIF output for code scanning and a baseline for existing code. See [the config file](docs/architecture.md#the-config-file) for a complete example.
+Declare your intended architecture in `graphit.architecture.json` at the workspace root: `elements` name sets of files, `rules` say what each may import, and `roles` declare what each unit is. The view lists each rule with its violations; the `check_architecture` MCP tool reports new `error` violations, supports a baseline for existing code, and can gate CI. See [the config file](docs/architecture.md#the-config-file) for a complete example.
 
 ### Unused dependencies and impact analysis
 
@@ -113,56 +111,6 @@ Declare your intended architecture in `graphit.architecture.json` at the workspa
 - Trace execution from a function or symbol.
 - Identify callers affected by a signature change.
 - Generate a codemap with exports, internals, dependencies, dependents, and call flow.
-
-## Standalone CLI
-
-Use the same analysis engine without VS Code. Install it globally:
-
-```bash
-npm install -g @magic5644/graph-it-live
-```
-
-Or run it with `npx`:
-
-```bash
-npx @magic5644/graph-it-live scan
-```
-
-Common commands:
-
-```text
-graph-it scan                         Index the workspace
-graph-it summary                      Show a workspace overview
-graph-it summary <file>               Generate a file codemap
-graph-it trace <file#Symbol>          Trace execution from a symbol
-graph-it explain <file>               Explain intra-file call flow
-graph-it path <file>                  Show a dependency path
-graph-it check [path]                 Find unused exported symbols
-graph-it architecture --groups        Show the workspace architecture by folder or community
-graph-it check-architecture           Check imports against graphit.architecture.json
-graph-it query "<question>"           Ask a natural-language graph question
-graph-it context "<question>"         Retrieve bounded graph context
-graph-it wiki                         Generate a navigable Markdown wiki
-graph-it serve                        Start the MCP stdio server
-graph-it export [path]                Export the graph as HTML
-graph-it --help                       Show all commands and options
-```
-
-Analysis commands support `--format json|toon|markdown`. `trace`, `path` and `architecture` also support `--format mermaid`, `architecture --matrix` supports `--format csv`, and `check-architecture` supports `--format sarif`. Use `--workspace <path>` or `-w` to analyze a project other than the current directory.
-
-Run `graph-it --help` for the full command list, installation troubleshooting, REPL commands, output formats, and tool details.
-
-### Unified graph context
-
-`graph-it context` combines imports, symbols, calls, tests, impact, paths, hubs, and communities in one bounded response. It supports `search`, `neighbors`, `path`, `impact`, `refactor`, and `overview` modes.
-
-```bash
-graph-it context "what calls the request handler" --scope 'src/**' --format toon
-graph-it context --mode path --from src/api.ts#handle --to src/db.ts#query
-graph-it context --mode impact --seeds src/api.ts#handle --depth 3 --format json
-```
-
-Use `--detail compact` and `--token-budget` for agent-oriented responses; add `--format toon` for the compact TOON encoding.
 
 ## AI integrations
 
@@ -176,19 +124,15 @@ When the extension is installed, use these tools in Copilot Agent mode without c
 | --- | --- |
 | Navigation | Dependencies, reverse dependencies, imports, module resolution, workspace index status |
 | Symbols | Symbol graphs, callers, dependents, execution traces |
-| Refactoring | Breaking changes, impact analysis, unused symbols, dead-code scans, Git diff review |
+| Refactoring | Breaking changes, impact analysis, unused symbols, dead-code scans |
 | Context | File logic, codemaps, unified graph context, natural-language graph queries |
 | Call graph | Cross-file caller/callee queries and neighbourhood expansion |
 
-The graph-context tool is available as `#graphContext`. Other native references include `#graphDeps`, `#graphFindRefs`, `#graphCallers`, `#graphImpact`, `#graphCodemap`, `#graphTrace`, `#graphDeadCode`, `#graphReviewPr`, and `#graphQuery`.
+The graph-context tool is available as `#graphContext`. Other native references include `#graphDeps`, `#graphFindRefs`, `#graphCallers`, `#graphImpact`, `#graphCodemap`, `#graphTrace`, `#graphDeadCode`, and `#graphQuery`.
 
 ### MCP server
 
-The MCP server exposes 24 graph-analysis tools. Enable it in VS Code with `graph-it-live.enableMcpServer`, or start it from the CLI:
-
-```bash
-graph-it serve
-```
+The MCP server exposes 22 graph-analysis tools. Enable it in VS Code with `graph-it-live.enableMcpServer`, or point a client at the built bundle with `node <extension>/dist/mcpServer.mjs`.
 
 For VS Code, add `.vscode/mcp.json`:
 
@@ -197,8 +141,8 @@ For VS Code, add `.vscode/mcp.json`:
   "servers": {
     "graph-it-live": {
       "type": "stdio",
-      "command": "graph-it",
-      "args": ["serve"],
+      "command": "node",
+      "args": ["<extension>/dist/mcpServer.mjs"],
       "env": {
         "WORKSPACE_ROOT": "${workspaceFolder}"
       }
@@ -207,12 +151,12 @@ For VS Code, add `.vscode/mcp.json`:
 }
 ```
 
-For Cursor, use `.cursor/mcp.json` with the same server definition under `mcpServers` instead of `servers`. The same `graph-it serve` command works with Claude Desktop, Claude Code, Windsurf, and Antigravity; each client reads its own configuration file and environment variables.
+For Cursor, use `.cursor/mcp.json` with the same server definition under `mcpServers` instead of `servers`. The same `node <extension>/dist/mcpServer.mjs` command works with Claude Desktop, Claude Code, Windsurf, and Antigravity; each client reads its own configuration file and environment variables.
 
 For Codex CLI:
 
 ```bash
-codex mcp add graph-it-live --env WORKSPACE_ROOT=/path/to/project -- graph-it serve
+codex mcp add graph-it-live --env WORKSPACE_ROOT=/path/to/project -- node /path/to/graph-it-live/dist/mcpServer.mjs
 ```
 
 ### Other MCP clients
@@ -223,8 +167,8 @@ Clients without a native integration use the same server entry in their MCP conf
 {
   "graph-it-live": {
     "type": "stdio",
-    "command": "npx",
-    "args": ["-y", "@magic5644/graph-it-live@latest", "serve"]
+    "command": "node",
+    "args": ["<extension>/dist/mcpServer.mjs"]
   }
 }
 ```
@@ -233,17 +177,10 @@ Use the client expected top-level key (`servers` or `mcpServers`). See the [MCP 
 
 ## Configuration
 
-### Branch Watch
-
-Branch Watch is disabled by default. Enable `graph-it-live.branchWatch.enabled` for a workspace folder, select a local Git base branch and optionally a local or remote head branch, and use the native Branch status view to inspect changes automatically (it starts collapsed in the Graph-It-Live panel: expand it, or run `Graph-It-Live: Show Branch Status`). Branch selections are stored per workspace in the ignored `.graph-it/branch-watch.json`; the `baseRef` and `headRef` settings are retained only as a legacy fallback. An empty head uses the current branch plus the final on-disk state; an explicit head compares committed branch refs and does not include untracked workspace files. It never fetches, runs tests, or reports test success. The view shows file impact for supported languages, the same signature review as `graph-it review-pr` (TypeScript, JavaScript, Vue and Python, deleted files included, an unreadable file reported as a limitation), cycle history when the graphs are complete, and explicit limitations. Impact traversal is intentionally bounded (depth 3 and at most 200 affected files), so a partial result is reported with its risk and confidence instead of being presented as complete. Right-click any message row and choose `Copy Message` to pass the exact text to an LLM or issue. The reminder `Tests must pass before delivery.` is informational.
-
-Branch Watch requires the Graph-It-Live workspace root to be a supported Git repository. A folder without Git, an unborn or detached repository, conflicts, an inaccessible index, or an unsupported VCS is shown as `Branch watch unavailable`; the normal graph and CLI/MCP tools remain available.
-
 Set these options in VS Code settings:
 
 | Setting | Default | Purpose |
 | --- | --- | --- |
-| `graph-it-live.branchWatch.enabled` | `false` | Enable Branch Watch for the workspace folder |
 | `graph-it-live.performanceProfile` | `default` | Select `default`, `low-memory`, `high-performance`, or `custom` |
 | `graph-it-live.enableMcpServer` | `false` | Enable the built-in MCP server |
 | `graph-it-live.maxDepth` | `50` | Limit dependency traversal depth |
@@ -254,15 +191,9 @@ Set these options in VS Code settings:
 | `graph-it-live.preIndexCallGraph` | `true` | Pre-index the Live Call Graph |
 | `graph-it-live.symbolViewLayout` | `hierarchical` | Select `hierarchical`, `force-directed`, or `radial` |
 
-Workspace indexing (extension, CLI, and MCP) skips paths listed in the root `.gitignore`, plus `tests/fixtures/` and `out-*/` by default. Add a root `.graphitignore` with gitignore syntax to exclude more paths, or negate a rule to include it again, for example `!tests/fixtures/`.
+Workspace indexing (extension and MCP) skips paths listed in the root `.gitignore`, plus `tests/fixtures/` and `out-*/` by default. Add a root `.graphitignore` with gitignore syntax to exclude more paths, or negate a rule to include it again, for example `!tests/fixtures/`.
 
 `performanceProfile` sets indexing concurrency, cache sizes, and unused-analysis limits. To tune them by hand, select `custom` and edit the **Advanced: Performance overrides** section (search `@tag:advanced graph-it-live` in the Settings editor). The other profiles ignore these overrides.
-
-## CI review gate
-
-The `graph-it review-pr` command performs a deterministic local Git diff review before CI. It compares exported TypeScript, JavaScript, Vue and Python signatures, lists every file still importing a removed export, follows bounded dependent-symbol impact, and reports cycle evidence, unused exports, test candidates, and consumer standing. Consumers are classified as updated in the diff, covered by a test path, or unverified. The score reflects the highest-risk changed symbol; a high risk is report data, not a failing exit status.
-
-By default, `--base <ref>` is compared with the current working tree, including staged and unstaged file contents. Pass `--head <ref>` to compare two Git refs. Use `--depth` and `--max-files` to bound impact traversal and changed-file analysis. Run `graph-it review-pr --help` for scoring thresholds, output formats, limitations, and examples.
 
 ## Supported languages
 
@@ -298,7 +229,6 @@ Press F5 in VS Code to launch the Extension Development Host.
 | --- | --- |
 | `npm run build` | Build the extension and copy WASM assets |
 | `npm test` | Run unit tests |
-| `npm run test:cli` | Run CLI tests |
 | `npm run test:vscode` | Run VS Code E2E tests |
 | `npm run lint` | Run ESLint |
 | `npm run check:types` | Run strict TypeScript checks |

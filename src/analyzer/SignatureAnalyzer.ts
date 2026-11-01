@@ -97,7 +97,7 @@ export type BreakingChangeType =
   | 'member-optional-to-required'  // Optional member became required
   | 'type-alias-changed'           // Type alias definition changed
   | 'member-added'                 // Union or enum gained members: exhaustive consumers stop compiling
-  | 'symbol-moved';                // Removed here, declared by another changed file (review_pr)
+  | 'symbol-moved';                // Removed here, declared by another changed file
 
 /**
  * Represents a detected breaking change

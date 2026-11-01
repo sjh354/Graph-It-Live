@@ -1,4 +1,3 @@
-import * as nodePath from "node:path";
 import { workerState } from "../shared/state";
 import {
   executeAnalyzeBreakingChanges,
@@ -15,14 +14,12 @@ import {
   executeGetSymbolGraph,
   executeInvalidateFiles,
   executeQueryCallGraph,
-  executeReviewPr,
   executeRebuildIndex,
   executeResolveModulePath,
   executeScanDeadCode,
   executeTraceFunctionExecution,
   executeVerifyDependencyUsage,
   executeQueryNaturalLanguage,
-  executeGenerateWiki,
 } from "../tools";
 import type {
   AnalyzeBreakingChangesParams,
@@ -40,7 +37,6 @@ import type {
   McpToolName,
   McpWorkerConfig,
   McpWorkerResponse,
-  ReviewPrParams,
   QueryCallGraphParams,
   ResolveModulePathParams,
   ScanDeadCodeParams,
@@ -48,10 +44,8 @@ import type {
   VerifyDependencyUsageParams,
   QueryNaturalLanguageParams,
 } from "../types";
-import type { GenerateWikiParams } from "../types.js";
 import {
   resolveToolFilePaths,
-  validateFilePath,
   validateToolParams,
 } from "../types";
 
@@ -61,25 +55,6 @@ type ToolHandler = (
   postMessage: (msg: McpWorkerResponse) => void,
   signal: AbortSignal,
 ) => unknown;
-
-function validateRootPath(filePath: string, config: McpWorkerConfig): void {
-  validateFilePath(filePath, config.rootDir);
-}
-
-function validateGenerateWikiParams(
-  params: GenerateWikiParams,
-  config: McpWorkerConfig,
-): GenerateWikiParams {
-  const outputDir = params.outputDir ?? "wiki";
-  if (nodePath.isAbsolute(outputDir)) {
-    throw new Error("Wiki output directory must be relative to the workspace");
-  }
-  validateRootPath(outputDir, config);
-
-  if (params.scope !== undefined) validateRootPath(params.scope, config);
-
-  return { ...params, outputDir };
-}
 
 const toolHandlers: Partial<Record<McpToolName, ToolHandler>> = {
   graph_context: (params, _config, _postMessage, signal) =>
@@ -106,7 +81,6 @@ const toolHandlers: Partial<Record<McpToolName, ToolHandler>> = {
     executeTraceFunctionExecution(params as TraceFunctionExecutionParams),
   analyze_breaking_changes: (params) =>
     executeAnalyzeBreakingChanges(params as AnalyzeBreakingChangesParams),
-  review_pr: (params) => executeReviewPr(params as ReviewPrParams),
   get_impact_analysis: (params) =>
     executeGetImpactAnalysis(params as GetImpactAnalysisParams),
   generate_codemap: (params) =>
@@ -116,8 +90,6 @@ const toolHandlers: Partial<Record<McpToolName, ToolHandler>> = {
   scan_dead_code: (params, _config, _postMessage, signal) =>
     executeScanDeadCode(params as ScanDeadCodeParams, signal),
   query_natural_language: (params) => executeQueryNaturalLanguage(params as QueryNaturalLanguageParams),
-  generate_wiki: (params, config) =>
-    executeGenerateWiki(validateGenerateWikiParams(params as GenerateWikiParams, config)),
   explore_architecture: (params, _config, _postMessage, signal) =>
     executeExploreArchitecture(params as ExploreArchitectureParams, signal),
   check_architecture: (params, _config, _postMessage, signal) =>

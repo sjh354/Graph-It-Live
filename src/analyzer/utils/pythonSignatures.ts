@@ -1,7 +1,7 @@
 import { lineEnd, pythonCode } from './pyRsImports';
 
 /*
- * Top-level declarations of a Python module, for review_pr signature comparison (#524). A linear scan of the
+ * Top-level declarations of a Python module, for diff signature comparison (#524). A linear scan of the
  * code with strings and comments blanked, like pyRsImports: the review reads both sides of every changed file
  * synchronously, and a WASM parse per side would cost far more.
  * shortcut: only column-0 statements count, so class methods and definitions inside `if`/`try` blocks are not

@@ -27,8 +27,7 @@ export {
 } from "./graphContext";
 export {
     executeAnalyzeBreakingChanges,
-    executeGetImpactAnalysis,
-    executeReviewPr
+    executeGetImpactAnalysis
 } from "./impact";
 export {
     executeAnalyzeFileLogic
@@ -49,10 +48,6 @@ export {
     executeQueryNaturalLanguage,
     QueryNaturalLanguageSchema
 } from "./query";
-export {
-    executeGenerateWiki,
-    GenerateWikiSchema
-} from "./wiki";
 export {
     executeGetSessionStats,
     GetSessionStatsSchema

@@ -1007,17 +1007,6 @@ describe('validateToolParams', () => {
     }
   });
 
-  it('rejects an absolute MCP wiki output directory', () => {
-    const result = validateToolParams('generate_wiki', { outputDir: '/tmp/wiki' });
-
-    expect(result.success).toBe(false);
-  });
-
-  it('rejects a caller-supplied MCP wiki workspace root', () => {
-    const result = validateToolParams('generate_wiki', { workspaceRoot: '/tmp' });
-
-    expect(result.success).toBe(false);
-  });
 });
 
 // ============================================================================
@@ -1537,8 +1526,6 @@ describe('validated file paths resolve against the workspace, not the cwd (GHSA-
   });
 
   it('keeps workspace-relative parameters of other tools untouched', () => {
-    const wiki = { outputDir: 'wiki', scope: 'src' };
-    expect(resolveToolFilePaths('generate_wiki', wiki, rootDir)).toBe(wiki);
     expect(resolveToolFilePaths('get_index_status', {}, rootDir)).toEqual({});
     expect(resolveToolFilePaths('analyze_dependencies', null, rootDir)).toBeNull();
   });

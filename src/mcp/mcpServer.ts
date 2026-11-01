@@ -110,8 +110,6 @@ import { mcpToolDescription } from "./toolDescriptions";
 import {
   AnalyzeBreakingChangesParamsSchema,
   type AnalyzeBreakingChangesResult,
-  ReviewPrParamsSchema,
-  type ReviewPrResult,
   AnalyzeDependenciesParamsSchema,
   type AnalyzeDependenciesResult,
   CrawlDependencyGraphParamsSchema,
@@ -151,7 +149,6 @@ import {
   VerifyDependencyUsageParamsSchema,
 } from "./types";
 import type { GraphContextResponse } from "../shared/graph-context-types";
-import { GenerateWikiSchema } from "./tools/wiki.js";
 import { executeGetSessionStats, GetSessionStatsSchema, type GetSessionStatsResult } from "./tools/stats.js";
 import { flushSession } from "../analyzer/stats/statsPersistence";
 import { findWorkspaceRoot } from "../analyzer/utils/workspaceBoundary";
@@ -1223,29 +1220,6 @@ server.registerTool(
   },
 );
 
-// Tool: graphitlive_review_pr
-server.registerTool(
-  "graphitlive_review_pr",
-  {
-    title: "Review Pull Request Diff",
-    description: mcpToolDescription("review_pr"),
-    inputSchema: ReviewPrParamsSchema.extend({
-      response_format: ResponseFormatSchema.describe("Output format: 'json', 'markdown' (readable lists and tables), or 'toon'"),
-    }),
-    outputSchema: McpToolResponseSchema,
-    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  },
-  async ({ baseRef, headRef, maxFiles, maxDepth, response_format }) => {
-    const workerCheck = await ensureWorkerReady();
-    const responseFormat = response_format;
-    if (workerCheck.error) {
-      return formatToolResponse(workerCheck.response, responseFormat, "graphitlive_review_pr");
-    }
-    const response = await invokeToolWithResponse<ReviewPrResult>("review_pr", { baseRef, headRef, maxFiles, maxDepth });
-    return formatToolResponse(response, responseFormat, "graphitlive_review_pr");
-  },
-);
-
 // Tool: graphitlive_get_impact_analysis
 server.registerTool(
   "graphitlive_get_impact_analysis",
@@ -1513,40 +1487,6 @@ server.registerTool(
   },
 );
 
-// Tool: graphitlive_generate_wiki
-server.registerTool(
-  "graphitlive_generate_wiki",
-  {
-    title: "Generate Markdown Wiki from Call Graph",
-    description: mcpToolDescription("generate_wiki"),
-    inputSchema: GenerateWikiSchema.extend({
-      response_format: ResponseFormatSchema.describe(
-        "Output format: 'json', 'markdown' (readable lists and tables), or 'toon' (default: json). scope and exclude filtering is applied before generation — limitations are documented in the generated wiki itself.",
-      ),
-    }),
-    outputSchema: McpToolResponseSchema,
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: false,
-      idempotentHint: true,
-      openWorldHint: false,
-    },
-  },
-  async ({ outputDir, topHubsLimit, scope, exclude, response_format }) => {
-    const workerCheck = await ensureWorkerReady();
-    const responseFormat = response_format;
-    if (workerCheck.error)
-      return formatToolResponse(workerCheck.response, responseFormat, "graphitlive_generate_wiki");
-
-    const response = await invokeToolWithResponse(
-      "generate_wiki",
-      { outputDir, topHubsLimit, scope, exclude },
-    );
-
-    return formatToolResponse(response, responseFormat, "graphitlive_generate_wiki");
-  },
-);
-
 // Tool: graphitlive_get_session_stats
 // Runs in the server process (no worker needed): the sessionStats singleton
 // is populated by responseFormatter in this same process.
@@ -1615,7 +1555,7 @@ async function main(): Promise<void> {
   process.on("SIGINT", () => shutdown("Received SIGINT"));
   process.on("SIGTERM", () => shutdown("Received SIGTERM"));
   // MCP stdio shutdown starts with the client closing stdin. Exiting here also
-  // ends `graph-it serve`, whose parent may not forward signals (Windows).
+  // ends the MCP server, whose parent may not forward signals (Windows).
   process.stdin.on("end", () => shutdown("stdin closed"));
 
   // Covers stdio transport close / normal exit paths (flushStatsOnce is idempotent).

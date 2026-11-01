@@ -64,8 +64,6 @@ This will:
 |---------|-------------|
 | `npm run build` | Build the extension bundle (development mode) |
 | `npm run build -- --production` | Build with production optimizations |
-| `npm run build:cli` | Build standalone CLI only (`dist/graph-it.js`) |
-| `npm run build:cli -- --production` | Build CLI with production optimizations |
 | `npm run watch` | Rebuild automatically on file changes |
 
 ### Build Output
@@ -83,7 +81,6 @@ dist/
 ├── astWorker.js                   # Symbol analysis worker (CommonJS)
 ├── mcpServer.mjs                  # MCP server entry point (ESM)
 ├── mcpWorker.js                   # MCP operations worker (CommonJS)
-├── graph-it.js                    # Standalone CLI entry point (CJS)
 └── webview.js                     # React UI bundle (IIFE)
 ```
 
@@ -388,10 +385,6 @@ Validation is enforced during pull requests (not via scheduled nightly workflows
 3. Update `.vscodeignore` to exclude unnecessary files
 
 ## Development Workflow
-
-### Branch Watch development
-
-Branch Watch lives in the Node-only `src/analyzer/BranchWatchAnalyzer.ts` and the VS Code-only `src/extension/services/BranchWatchService.ts` and `BranchWatchTreeProvider.ts`. Keep Git capture read-only and bounded, preserve the existing `review-pr` contract, and keep the test reminder informational. Branch selections are persisted in the ignored `.graph-it/branch-watch.json`; workspace settings are only a migration fallback. Root changed-file importer lookups must be reserved before bounded impact traversal, and stale reverse-index entries must fall back to a fresh dependency scan. Use the temporary Git fixtures in `tests/analyzer/BranchWatchAnalyzer.test.ts` and the Electron suite in `tests/vscode-e2e/suite/branchWatch.test.ts` when changing lifecycle or manifest contributions.
 
 ### Daily Development
 

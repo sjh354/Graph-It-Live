@@ -9,12 +9,10 @@ import {
 } from './extensionLogger';
 import { GraphProvider } from './GraphProvider';
 import { CallGraphViewService } from './services/CallGraphViewService';
-import { parseReviewCallGraphDepth } from '../shared/reviewTarget';
 import { CommandCoordinator } from './services/CommandCoordinator';
 import { CommandRegistrationService } from './services/CommandRegistrationService';
 import { EditorEventsService } from './services/EditorEventsService';
 import { LmToolsService } from './services/LmToolsService';
-import { registerBranchWatch } from './services/BranchWatchService';
 
 // Keep track of MCP server provider for cleanup
 let mcpServerProvider: McpServerProvider | null = null;
@@ -70,7 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
         commandCoordinator,
         logger: log,
     });
-    const lmToolsService = new LmToolsService({ provider, logger: log, extensionPath: context.extensionPath });
+    const lmToolsService = new LmToolsService({ provider, logger: log });
     
     // Get the fileChangeScheduler from provider (it's created during provider construction)
     const fileChangeScheduler = provider.fileChangeScheduler;
@@ -86,9 +84,6 @@ export function activate(context: vscode.ExtensionContext) {
     // Call Graph panel — T019: register showCallGraph command
     const callGraphViewService = new CallGraphViewService(context);
     provider.setCallGraphViewService(callGraphViewService);
-    const branchWatchRegistration = registerBranchWatch(context, provider);
-    provider.setBranchWatchRegistration(branchWatchRegistration);
-    context.subscriptions.push(branchWatchRegistration);
 
     const disposables: vscode.Disposable[] = [
       // Output channel disposal
@@ -103,25 +98,6 @@ export function activate(context: vscode.ExtensionContext) {
             callGraphViewService.show().catch((err: unknown) => {
                 log.error('graph-it-live.showCallGraph error:', err);
             });
-        }),
-
-        vscode.window.registerUriHandler({
-            handleUri: async (uri) => {
-                if (uri.path !== '/graph-it-live.reviewCallGraph') return;
-                const query = new URLSearchParams(uri.query);
-                const file = query.get('file');
-                const symbol = query.get('symbol') ?? undefined;
-                if (!file) {
-                    vscode.window.showErrorMessage('Graph-It-Live: Invalid review link');
-                    return;
-                }
-                try {
-                    const depth = parseReviewCallGraphDepth(query.get('depth'));
-                    await vscode.commands.executeCommand('graph-it-live.reviewCallGraph', { file, symbol, depth });
-                } catch {
-                    vscode.window.showErrorMessage('Graph-It-Live: Invalid review link');
-                }
-            },
         }),
 
       // Provider must be registered before command

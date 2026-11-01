@@ -20,9 +20,7 @@ const { registeredTools, registerToolFn } = vi.hoisted(() => {
 });
 
 const executeGraphContextWithIndexes = vi.hoisted(() => vi.fn());
-const { reviewAnalyze, reviewGateCtor, queryEngineQuery, queryEngineCtor } = vi.hoisted(() => ({
-  reviewAnalyze: vi.fn(),
-  reviewGateCtor: vi.fn(),
+const { queryEngineQuery, queryEngineCtor } = vi.hoisted(() => ({
   queryEngineQuery: vi.fn(),
   queryEngineCtor: vi.fn(),
 }));
@@ -71,17 +69,6 @@ vi.mock('@/analyzer/SignatureAnalyzer', () => ({
           nonBreakingChanges: [{ type: 'doc_comment', description: 'updated JSDoc' }],
         },
       ];
-    }
-  },
-}));
-
-vi.mock('@/analyzer/ReviewGateAnalyzer', () => ({
-  ReviewGateAnalyzer: class {
-    constructor(...args: unknown[]) {
-      reviewGateCtor(...args);
-    }
-    analyze(params: unknown) {
-      return reviewAnalyze(params);
     }
   },
 }));
@@ -196,13 +183,13 @@ describe('LmToolsService', () => {
   // ─── registerAll ──────────────────────────────────────────────────────────
 
   describe('registerAll', () => {
-    it('registers 24 tools and returns 24 disposables', () => {
+    it('registers 23 tools and returns 23 disposables', () => {
       const provider = createProvider();
       const service = new LmToolsService({ provider, logger });
       const disposables = service.registerAll();
 
-      expect(disposables).toHaveLength(24);
-      expect(registerToolFn).toHaveBeenCalledTimes(24);
+      expect(disposables).toHaveLength(23);
+      expect(registerToolFn).toHaveBeenCalledTimes(23);
     });
 
     it('returns empty array when vscode.lm.registerTool is unavailable', () => {
@@ -227,7 +214,6 @@ describe('LmToolsService', () => {
       'graph-it-live_query_call_graph',
       'graph-it-live_scan_dead_code',
       'graph-it-live_graph_context',
-      'graph-it-live_review_pr',
       'graph-it-live_query_natural_language',
     ])('registers %s', (toolName) => {
       const provider = createProvider();
@@ -408,60 +394,6 @@ describe('LmToolsService', () => {
     expect(tool?.inputSchema.properties.to.properties).toEqual(
       tool?.inputSchema.properties.seeds.items?.properties,
     );
-  });
-
-  // ─── review_pr ────────────────────────────────────────────────────────────
-
-  describe('review_pr', () => {
-    const TOOL = 'graph-it-live_review_pr';
-
-    beforeEach(() => {
-      reviewAnalyze.mockReset();
-      reviewGateCtor.mockReset();
-    });
-
-    it('reviews the diff against the workspace root and the live spider', async () => {
-      reviewAnalyze.mockResolvedValueOnce({ baseRef: 'main', risk: 'low', score: 0, changedFiles: ['/workspace/src/a.ts'] });
-      const provider = createProvider();
-      new LmToolsService({ provider, logger }).registerAll();
-
-      const result = await invokeTool(TOOL, { baseRef: 'main', maxFiles: 10 });
-
-      expect(reviewGateCtor).toHaveBeenCalledWith('/workspace', expect.objectContaining({
-        getSymbolDependents: expect.any(Function),
-        findFileCycles: expect.any(Function),
-      }));
-      expect(reviewAnalyze).toHaveBeenCalledWith({ baseRef: 'main', maxFiles: 10 });
-      expect(result).toEqual({ baseRef: 'main', risk: 'low', score: 0, changedFiles: ['src/a.ts'] });
-    });
-
-    it('rejects input that fails the MCP schema without running git', async () => {
-      new LmToolsService({ provider: createProvider(), logger }).registerAll();
-
-      const result = await invokeTool(TOOL, { baseRef: 'main', maxDepth: 99 }) as { error: string };
-
-      expect(result.error).toContain('maxDepth');
-      expect(reviewAnalyze).not.toHaveBeenCalled();
-    });
-
-    it('returns an error when the dependency index is not ready', async () => {
-      const provider = createProvider();
-      vi.mocked(provider.getSpiderForLmTools).mockReturnValue(undefined);
-      new LmToolsService({ provider, logger }).registerAll();
-
-      const result = await invokeTool(TOOL, { baseRef: 'main' }) as { error: string };
-
-      expect(result.error).toContain('not initialized');
-    });
-
-    it('returns the analyzer error as a tool error', async () => {
-      reviewAnalyze.mockRejectedValueOnce(new Error('baseRef must be a Git ref that does not start with "-"'));
-      new LmToolsService({ provider: createProvider(), logger }).registerAll();
-
-      const result = await invokeTool(TOOL, { baseRef: '--output=x' }) as { error: string };
-
-      expect(result.error).toContain('baseRef');
-    });
   });
 
   // ─── query_natural_language ───────────────────────────────────────────────

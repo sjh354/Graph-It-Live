@@ -137,51 +137,6 @@ vi.mock("../../src/analyzer/Spider", () => {
 });
 
 describe("GraphProvider", () => {
-  it("prepares branch watch without opening a webview and rejects an incomplete index", async () => {
-    const spider = provider.getSpiderForLmTools()!;
-    Object.assign(spider, {
-      workspaceRoot: testRootDir,
-      getIndexStatus: () => ({ state: 'complete', total: 1 }),
-      isReverseIndexEnabled: () => true,
-      enableReverseIndex: vi.fn(), disableReverseIndex: vi.fn(), clearCache: vi.fn(),
-      getSerializedReverseIndex: () => JSON.stringify({ fileHashes: { [path.join(testRootDir, 'src/main.ts')]: {} } }),
-      validateReverseIndex: vi.fn().mockResolvedValue({ isValid: true, staleFiles: [], missingFiles: [] }),
-    });
-    await provider.prepareBranchWatchIndex({ headSha: 'first', readablePaths: [] });
-    expect(spider.buildFullIndexInWorker).not.toHaveBeenCalled();
-    await provider.prepareBranchWatchIndex({ headSha: 'first', readablePaths: [] });
-    expect(spider.buildFullIndexInWorker).not.toHaveBeenCalled();
-    Object.assign(spider, { validateReverseIndex: vi.fn().mockResolvedValue({ isValid: false, staleFiles: [], missingFiles: [] }) });
-    await expect(provider.prepareBranchWatchIndex({ headSha: 'second', readablePaths: [] })).rejects.toThrow('incomplete');
-  });
-
-  it("prepares branch watch when the branch deletes a source file (#313)", async () => {
-    const spider = provider.getSpiderForLmTools()!;
-    const deleted = normalizePath(path.join(testRootDir, 'src', 'old', 'gone.ts'));
-    const validateReverseIndex = vi.fn()
-      .mockResolvedValueOnce({ isValid: false, staleFiles: [], missingFiles: [deleted] })
-      .mockResolvedValueOnce({ isValid: true, staleFiles: [], missingFiles: [] });
-    Object.assign(spider, {
-      workspaceRoot: testRootDir,
-      getIndexStatus: () => ({ state: 'complete', total: 1 }),
-      isReverseIndexEnabled: () => true,
-      validateReverseIndex,
-    });
-    const scheduler = { enqueue: vi.fn(), whenIdle: vi.fn().mockResolvedValue(undefined) };
-    Object.assign(provider, { _fileChangeScheduler: scheduler });
-
-    // Backslash separators in the Git change path must resolve to the same normalized key.
-    await expect(provider.prepareBranchWatchIndex({
-      headSha: 'deleting-branch',
-      readablePaths: [],
-      changes: [{ kind: 'deleted', path: String.raw`src\old\gone.ts` }],
-    })).resolves.toBeUndefined();
-
-    expect(validateReverseIndex).toHaveBeenNthCalledWith(1, 0, [], [deleted]);
-    expect(scheduler.enqueue).toHaveBeenCalledWith(deleted, 'delete');
-    expect(validateReverseIndex).toHaveBeenCalledTimes(2);
-  });
-
   let provider: GraphProvider;
   let extensionUri: vscode.Uri;
   let mockContext: vscode.ExtensionContext;

@@ -12,11 +12,7 @@ function stderr(line) {
 
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
-const cliOnly = process.argv.includes('--cli-only');
 
-const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-// The committed version stays 0.0.1; CI bumps it before release builds. Mark local builds as dev.
-const CLI_VERSION = pkg.version === '0.0.1' ? '0.0.0-dev' : pkg.version;
 
 // Extract metafile path from --metafile=path argument
 const metafileArg = process.argv.find(arg => arg.startsWith('--metafile='));
@@ -185,7 +181,6 @@ function nodeBundle(entryPoint, outfile, extra = {}) {
     metafile: !!metafilePath,
     loader: { '.wasm': 'file' },
     // Every Node bundle stamps the shared .graph-it/cache/ guard with the same version.
-    define: { 'process.env.CLI_VERSION': JSON.stringify(CLI_VERSION) },
     ...extra,
   };
 }
@@ -221,7 +216,7 @@ const __dirname = dirname(__filename);`,
 };
 
 async function createAllContexts() {
-  const extension = cliOnly ? null : await esbuild.context(nodeBundle(
+  const extension = await esbuild.context(nodeBundle(
     'src/extension/extension.ts', 'dist/extension.js',
     { external: ['vscode', 'web-tree-sitter'] },
   ));
@@ -229,54 +224,41 @@ async function createAllContexts() {
   const astWorker = await esbuild.context(nodeBundle('src/analyzer/ast/AstWorker.ts', 'dist/astWorker.js', { external: ['web-tree-sitter'] }));
   const mcpServer = await esbuild.context(nodeBundle('src/mcp/mcpServer.ts', 'dist/mcpServer.mjs', { format: 'esm', external: ['web-tree-sitter'], banner: ESM_BANNER }));
   const mcpWorker = await esbuild.context(nodeBundle('src/mcp/McpWorker.ts', 'dist/mcpWorker.js', { external: ['web-tree-sitter'] }));
-  const cli = await esbuild.context(nodeBundle('src/cli/index.ts', 'dist/graph-it.js', {
-    external: ['vscode', 'web-tree-sitter', 'ink', 'react'],
-  }));
-  const webview = cliOnly ? null : await esbuild.context(browserBundle('src/webview/index.tsx', 'dist/webview.js'));
-  const callgraphWebview = cliOnly ? null : await esbuild.context(browserBundle('src/webview/callgraph/index.tsx', 'dist/callgraph.js'));
-  return { extension, worker, astWorker, mcpServer, mcpWorker, cli, webview, callgraphWebview };
+  const webview = await esbuild.context(browserBundle('src/webview/index.tsx', 'dist/webview.js'));
+  const callgraphWebview = await esbuild.context(browserBundle('src/webview/callgraph/index.tsx', 'dist/callgraph.js'));
+  return { extension, worker, astWorker, mcpServer, mcpWorker, webview, callgraphWebview };
 }
 
 async function watchContexts(ctxs) {
-  if (ctxs.extension) await ctxs.extension.watch();
+  await ctxs.extension.watch();
   await ctxs.worker.watch();
   await ctxs.astWorker.watch();
   await ctxs.mcpServer.watch();
   await ctxs.mcpWorker.watch();
-  await ctxs.cli.watch();
   if (ctxs.webview) await ctxs.webview.watch();
   if (ctxs.callgraphWebview) await ctxs.callgraphWebview.watch();
 }
 
 async function rebuildAndDispose(ctxs) {
-  const resultExtension = ctxs.extension ? await ctxs.extension.rebuild() : null;
+  const resultExtension = await ctxs.extension.rebuild();
   const resultWorker = await ctxs.worker.rebuild();
   const resultAstWorker = await ctxs.astWorker.rebuild();
   const resultMcpServer = await ctxs.mcpServer.rebuild();
   const resultMcpWorker = await ctxs.mcpWorker.rebuild();
-  const resultWebview = ctxs.webview ? await ctxs.webview.rebuild() : null;
-  if (ctxs.callgraphWebview) await ctxs.callgraphWebview.rebuild();
-  await ctxs.cli.rebuild();
+  const resultWebview = await ctxs.webview.rebuild();
+  await ctxs.callgraphWebview.rebuild();
 
-  // 0o755 = owner:rwx group:rx others:rx — standard for a CLI executable // NOSONAR
-  try {
-    fs.chmodSync('dist/graph-it.js', 0o755); // NOSONAR
-  } catch (chmodErr) {
-    if (process.platform !== 'win32') stderr(`⚠ Could not chmod dist/graph-it.js: ${chmodErr.message}`);
-  }
-
-  if (metafilePath && !cliOnly && resultExtension && resultWebview) {
+  if (metafilePath && resultExtension && resultWebview) {
     saveMetafiles(metafilePath, { resultExtension, resultWorker, resultAstWorker, resultMcpServer, resultMcpWorker, resultWebview });
   }
 
-  if (ctxs.extension) await ctxs.extension.dispose();
+  await ctxs.extension.dispose();
   await ctxs.worker.dispose();
   await ctxs.astWorker.dispose();
   await ctxs.mcpServer.dispose();
   await ctxs.mcpWorker.dispose();
-  await ctxs.cli.dispose();
-  if (ctxs.callgraphWebview) await ctxs.callgraphWebview.dispose();
-  if (ctxs.webview) await ctxs.webview.dispose();
+  await ctxs.callgraphWebview.dispose();
+  await ctxs.webview.dispose();
 }
 
 async function main() {

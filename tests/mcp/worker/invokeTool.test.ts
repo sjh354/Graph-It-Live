@@ -12,7 +12,7 @@ const executors = vi.hoisted(() => {
     "executeAnalyzeBreakingChanges", "executeAnalyzeDependencies", "executeCrawlDependencyGraph",
     "executeFindReferencingFiles", "executeFindUnusedSymbols", "executeGenerateCodemap",
     "executeGraphContext", "executeGetImpactAnalysis", "executeGetIndexStatus",
-    "executeGetSymbolGraph", "executeInvalidateFiles", "executeQueryCallGraph", "executeReviewPr", "executeRebuildIndex",
+    "executeGetSymbolGraph", "executeInvalidateFiles", "executeQueryCallGraph", "executeRebuildIndex",
     "executeResolveModulePath", "executeScanDeadCode", "executeTraceFunctionExecution",
     "executeVerifyDependencyUsage", "executeQueryNaturalLanguage", "executeGenerateWiki",
     "executeExploreArchitecture",
@@ -84,7 +84,6 @@ describe("invokeTool", () => {
       ["get_index_status", "executeGetIndexStatus", {}],
       ["rebuild_index", "executeRebuildIndex", {}],
       ["scan_dead_code", "executeScanDeadCode", {}],
-      ["review_pr", "executeReviewPr", { baseRef: "HEAD" }],
       ["graph_context", "executeGraphContext", { question: "q" }],
       ["query_natural_language", "executeQueryNaturalLanguage", { question: "q" }],
       ["explore_architecture", "executeExploreArchitecture", { from: "api", to: "db" }],
@@ -92,14 +91,6 @@ describe("invokeTool", () => {
       expect((await call(tool, params)).type).toBe("result");
       expect(executors[executor]).toHaveBeenCalledTimes(1);
     }
-  });
-
-  it("keeps the wiki output directory relative to the workspace", async () => {
-    expect((await call("generate_wiki", { outputDir: "docs/wiki", scope: "src" })).type).toBe("result");
-    expect(executors.executeGenerateWiki).toHaveBeenCalledWith(expect.objectContaining({ outputDir: "docs/wiki", scope: "src" }));
-
-    const absolute = await call("generate_wiki", { outputDir: inRoot("wiki") });
-    expect(absolute).toMatchObject({ type: "error", error: expect.stringContaining("relative to the workspace") });
   });
 
   it("rejects a relative path that leaves the workspace as a security error", async () => {

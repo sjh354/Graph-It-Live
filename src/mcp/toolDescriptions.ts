@@ -248,15 +248,6 @@ const TOOL_DESCRIPTIONS: Record<DescribedToolName, ToolDescription> = {
       "INPUT: oldContent must be the full previous file content, not a placeholder. With symbolName, an unknown symbol returns an error listing close name matches, a symbol missing from a non-empty oldContent that declares nothing returns an error, and a symbol new in newContent is reported as a non-breaking change.",
     ],
   },
-  review_pr: {
-    summary: "Reviews a local Git diff and reports the risk it carries, with per-symbol evidence.",
-    lines: [
-      "WHEN: before opening a pull request, or as a CI gate.",
-      "WHY: combines the parsed signatures of both revisions with the workspace index, so signature changes are scored against their real callers.",
-      "RETURNS: deterministic risk level, per-symbol evidence, impact counts, and an explicit list of what could not be analysed.",
-      { lm: "LIMITS: runs git in the first workspace folder; impact counts are incomplete while background indexing runs." },
-    ],
-  },
   get_impact_analysis: {
     summary: "Reports everything affected by changing one symbol, direct and transitive.",
     lines: [
@@ -335,15 +326,6 @@ const TOOL_DESCRIPTIONS: Record<DescribedToolName, ToolDescription> = {
         mcp: "LIMITS: returns graph data, not prose - you write the answer from it. The first call indexes the workspace (3-8s).",
         lm: `LIMITS: returns graph data, not prose - you write the answer from it; ${LM_CALL_GRAPH_INDEX}`,
       },
-    ],
-  },
-  generate_wiki: {
-    summary: "Writes a navigable markdown wiki of the workspace from the call graph index.",
-    lines: [
-      "WHEN: producing browsable documentation, or a persistent overview of files and their relationships.",
-      "WHY: one article per source file, cross-linked through real caller and callee edges.",
-      "RETURNS: number of articles written, index path, articles directory, and the top files by hub score.",
-      "LIMITS: writes files to disk, and fails instead of replacing an index.md or article it did not generate. The first call indexes the workspace (3-8s).",
     ],
   },
   explore_architecture: {

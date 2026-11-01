@@ -10,14 +10,14 @@ paths:
 - Put extension orchestration in `src/extension/services/`. Keep `GraphProvider` as coordinator, not feature implementation.
 - Define extension↔webview protocol in `src/shared/types.ts`; update message type, sender, router, and receiver together.
 - Prefer `@/` imports for `src/`, named/type-only imports, strict types, and existing naming conventions. Use `SpiderError`/`SpiderErrorCode` when callers branch on failure reason.
-- Preserve separate outputs: extension host, CLI, MCP server, workers, file/symbol webview, and call-graph webview.
+- Preserve separate outputs: extension host, MCP server, workers, file/symbol webview, and call-graph webview.
 - After modifying first-party source, run targeted tests, `npm run lint`, `npm run check:types`, and configured SonarQube analysis. Fix new findings before completion.
 
 ## Architecture Rules (`graphit.architecture.json`)
 
 The layer boundaries above are machine-checked by the repository's own `graphit.architecture.json`. Keep it the single source of truth and keep it passing.
 
-- After any source change that adds, moves, or rewires imports, run `graph-it check-architecture` (or the `graphitlive_check_architecture` MCP tool). Exit code 1 means a new `error` violation: fix the import, not the rule.
+- After any source change that adds, moves, or rewires imports, call the `graphitlive_check_architecture` MCP tool. A new `error` violation means fix the import, not the rule.
 - Require 0 violations, 0 `unmatchedFiles`, and no `configWarnings`. A file no element selects escapes every rule.
 - New top-level folder under `src/`, new shipped entry point, or new tooling root: add its element and its `allowOnly`/`forbid` rules (with a `reason`) in the same change.
 - Changing a layer relationship on purpose: get user approval first, then update the rule and its `reason`, the layer list above, and `.agents/AGENTS.md` together, and state the change in the PR summary. Cross-layer redesigns also get an ADR.

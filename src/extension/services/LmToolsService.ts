@@ -12,15 +12,12 @@
 import { IndexCache } from '@/analyzer/cache/IndexCache';
 import { LspCallHierarchyAnalyzer } from '@/analyzer/LspCallHierarchyAnalyzer';
 import { QueryEngine } from '@/analyzer/QueryEngine';
-import { ReviewGateAnalyzer } from '@/analyzer/ReviewGateAnalyzer';
 import { reportOutOfRootImports } from '@/analyzer/utils/workspaceBoundary';
 import { scanDeadCode } from '@/analyzer/deadcode/DeadCodeScanner';
 import {
   QueryNaturalLanguageParamsSchema,
-  ReviewPrParamsSchema,
   type GraphContextParams,
   type QueryNaturalLanguageParams,
-  type ReviewPrParams,
 } from '@/mcp/types';
 import type { Dependency, SymbolDependency } from '@/analyzer/types';
 import { checkSymbolInFile, symbolNotFoundMessage } from '@/analyzer/utils/SymbolLookup';
@@ -147,8 +144,6 @@ interface ScanDeadCodeInput {
 interface LmToolsServiceOptions {
   provider: GraphProvider;
   logger: VsCodeLogger;
-  /** Locates the WASM parsers review_pr needs to read import cycles outside JS/TS. */
-  extensionPath?: string;
 }
 
 // ─── Local path helper (mirrors mcp/shared/helpers without importing MCP) ────
@@ -186,12 +181,10 @@ interface LmCallerInfo {
 export class LmToolsService {
   private readonly provider: GraphProvider;
   private readonly logger: VsCodeLogger;
-  private readonly extensionPath?: string;
 
   constructor(options: LmToolsServiceOptions) {
     this.provider = options.provider;
     this.logger = options.logger;
-    this.extensionPath = options.extensionPath;
   }
 
   /**
@@ -227,7 +220,6 @@ export class LmToolsService {
       this.registerQueryCallGraph(),
       this.registerScanDeadCode(),
       this.registerGraphContext(),
-      this.registerReviewPr(),
       this.registerQueryNaturalLanguage(),
     ];
   }
@@ -1576,36 +1568,6 @@ export class LmToolsService {
           }
           try {
             const result = await scanDeadCode(spider, rootDir, { scopePath, maxFiles });
-            return new vscode.LanguageModelToolResult([
-              new vscode.LanguageModelTextPart(JSON.stringify(result)),
-            ]);
-          } catch (error) {
-            return this.errorResult(error instanceof Error ? error.message : String(error));
-          }
-        },
-      },
-    );
-  }
-
-  // ─── Tool: review_pr ──────────────────────────────────────────────────────
-
-  private registerReviewPr(): vscode.Disposable {
-    return this.registerTool<ReviewPrParams>(
-      'graph-it-live_review_pr',
-      {
-        invoke: async (
-          options: vscode.LanguageModelToolInvocationOptions<ReviewPrParams>,
-          _token: vscode.CancellationToken,
-        ): Promise<vscode.LanguageModelToolResult> => {
-          const spider = this.provider.getSpiderForLmTools();
-          const rootDir = this.getWorkspaceRoot();
-          if (!spider || !rootDir) {
-            return this.errorResult('No workspace open or dependency index not initialized.');
-          }
-          try {
-            const params = ReviewPrParamsSchema.parse(options.input);
-            const { createSpiderDependentsProvider } = await import('../../mcp/tools/impact.js');
-            const result = await new ReviewGateAnalyzer(rootDir, createSpiderDependentsProvider(spider, rootDir, this.extensionPath)).analyze(params);
             return new vscode.LanguageModelToolResult([
               new vscode.LanguageModelTextPart(JSON.stringify(result)),
             ]);

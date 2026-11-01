@@ -2,7 +2,7 @@ import { mapWithConcurrency } from '../../shared/concurrency';
 import { readImportBindings } from './pyRsImports';
 import { readModuleReExports } from './reExports';
 
-/** What the walk reads; paths are workspace-relative, as review_pr reports them. */
+/** What the walk reads; paths are workspace-relative. */
 export interface ImporterSource {
   /** Files the index says reference `file`, or why they could not be listed. */
   referencingFiles(file: string): Promise<string[] | string>;

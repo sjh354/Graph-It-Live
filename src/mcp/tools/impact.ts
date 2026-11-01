@@ -1,7 +1,4 @@
 import * as fs from "node:fs/promises";
-import { BranchWatchAnalyzer } from "../../analyzer/BranchWatchAnalyzer";
-import { ReviewGateAnalyzer, type SymbolDependentsProvider } from "../../analyzer/ReviewGateAnalyzer";
-import type { Spider } from "../../analyzer/Spider";
 import type { SymbolDependency } from "../../analyzer/types";
 import { checkSymbolInFile, symbolNotFoundMessage } from "../../analyzer/utils/SymbolLookup";
 import { normalizePath } from "../../shared/path";
@@ -15,35 +12,7 @@ import type {
     GetImpactAnalysisParams,
     GetImpactAnalysisResult,
     ImpactedItem,
-    ReviewPrParams,
-    ReviewPrResult,
 } from "../types";
-
-/**
- * Exposes every available warmed Spider symbol-analysis capability to review analysis.
- * `extensionPath` locates the WASM parsers: without it, import cycles of Python, Rust, Go, Java and C# files cannot be read.
- */
-export function createSpiderDependentsProvider(
-  spider: Pick<Spider, "getSymbolDependents" | "getSymbolGraph" | "findUnusedSymbols" | "findReferencingFiles" | "findReferencingFilesWithFallback">,
-  rootDir?: string,
-  extensionPath?: string,
-): SymbolDependentsProvider {
-  return {
-    getSymbolDependents: (filePath, symbolName) => spider.getSymbolDependents(filePath, symbolName),
-    getSymbolGraph: (filePath) => spider.getSymbolGraph(filePath),
-    findUnusedSymbols: (filePath) => spider.findUnusedSymbols(filePath),
-    findReferencingFiles: (filePath) => spider.findReferencingFiles(filePath),
-    findReferencingFilesWithFallback: (filePath) => spider.findReferencingFilesWithFallback(filePath),
-    ...(rootDir && { findFileCycles: (changedFiles, baseRef) => new BranchWatchAnalyzer(rootDir, undefined, extensionPath).findFileCycles(changedFiles, baseRef) }),
-  };
-}
-
-/** Run a deterministic local Git-diff review using the warmed reverse symbol index. */
-export async function executeReviewPr(params: ReviewPrParams): Promise<ReviewPrResult> {
-  const config = workerState.getConfig();
-  const analyzer = new ReviewGateAnalyzer(config.rootDir, createSpiderDependentsProvider(workerState.getSpider(), config.rootDir, config.extensionPath));
-  return analyzer.analyze(params);
-}
 
 /**
  * Analyze breaking changes between old and new file versions

@@ -10,13 +10,17 @@
       "id": "project-architecture",
       "question": "Show me the architecture of this module starting from src/index.ts — the full dependency tree.",
       "expected": "graphitlive_crawl_dependency_graph",
-      "acceptable": ["graphitlive_graph_context"]
+      "acceptable": [
+        "graphitlive_graph_context"
+      ]
     },
     {
       "id": "who-imports-this-file",
       "question": "What files import src/utils.ts?",
       "expected": "graphitlive_find_referencing_files",
-      "acceptable": ["graphitlive_graph_context"]
+      "acceptable": [
+        "graphitlive_graph_context"
+      ]
     },
     {
       "id": "unused-import-check",
@@ -62,13 +66,17 @@
       "id": "who-calls-symbol",
       "question": "Who calls the validateEmail function?",
       "expected": "graphitlive_query_call_graph",
-      "acceptable": ["graphitlive_get_impact_analysis"]
+      "acceptable": [
+        "graphitlive_get_impact_analysis"
+      ]
     },
     {
       "id": "full-call-chain",
       "question": "Trace the execution of handleUserLogin from the controller — the full recursive call chain.",
       "expected": "graphitlive_trace_function_execution",
-      "acceptable": ["graphitlive_query_call_graph"]
+      "acceptable": [
+        "graphitlive_query_call_graph"
+      ]
     },
     {
       "id": "breaking-changes",
@@ -89,17 +97,9 @@
       "id": "concept-question",
       "question": "How does the MCP server handle tool invocations?",
       "expected": "graphitlive_query_natural_language",
-      "acceptable": ["graphitlive_graph_context"]
-    },
-    {
-      "id": "pr-review",
-      "question": "Review my branch against origin/main before I open the pull request. Is it risky?",
-      "expected": "graphitlive_review_pr"
-    },
-    {
-      "id": "generate-docs",
-      "question": "Produce a browsable markdown wiki of this codebase with one article per file.",
-      "expected": "graphitlive_generate_wiki"
+      "acceptable": [
+        "graphitlive_graph_context"
+      ]
     },
     {
       "id": "token-stats",

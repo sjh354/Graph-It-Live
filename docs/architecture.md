@@ -1,6 +1,6 @@
 # Architecture view, rules and check-architecture
 
-Graph-It-Live draws the architecture of a workspace from its static imports, checks it against rules you write, and exposes the same data in VS Code, the `graph-it` CLI and the MCP server.
+Graph-It-Live draws the architecture of a workspace from its static imports, checks it against rules you write, and exposes the same data in VS Code and the MCP server.
 
 ## What it answers
 
@@ -59,7 +59,7 @@ flowchart TB
 
 ## Read the view
 
-Each part of the view below answers three questions: what it is for, how to read it, and how to fix what it raises. [Every mark at a glance](#every-mark-at-a-glance) lists all marks in one table; [Fix what the view raises](#fix-what-the-view-raises) gives the fix procedures. The CLI and MCP calls that give the same reading are in [Same data, three surfaces](#same-data-three-surfaces).
+Each part of the view below answers three questions: what it is for, how to read it, and how to fix what it raises. [Every mark at a glance](#every-mark-at-a-glance) lists all marks in one table; [Fix what the view raises](#fix-what-the-view-raises) gives the fix procedures. The MCP calls that give the same reading are in [Same data, two surfaces](#same-data-two-surfaces).
 
 ### Graph
 
@@ -252,7 +252,7 @@ Colours follow the VS Code theme: *red* is the theme's error colour, *focus* its
 
 ## Fix what the view raises
 
-Each fix ends with **Refresh** (or `graph-it architecture`, `graph-it check-architecture`) to confirm.
+Each fix ends with **Refresh** (or the `explore_architecture` and `check_architecture` MCP tools) to confirm.
 
 ### A cycle
 
@@ -280,18 +280,18 @@ A dashed red edge, a red-framed matrix cell, a red rule in the Rules panel.
 1. Click the rule in the Rules panel. The evidence panel lists its violating file pairs; hover the rule for its `reason`.
 2. Click the importing file to open it at the import.
 3. Fix the import, not the rule: import the code through an allowed element, or move it where the rule allows it.
-4. Refresh the view, or run `graph-it check-architecture`: the rule shows 0 violations.
+4. Refresh the view, or call `check_architecture`: the rule shows 0 violations.
 
-Change the rule only when the architecture itself changed. Baseline a violation (`graph-it check-architecture --update-baseline`) only for accepted legacy debt, never to let new code pass: see [Adopt rules on existing code](#adopt-rules-on-existing-code).
+Change the rule only when the architecture itself changed. Record a violation in `graphit.architecture.baseline.json` only for accepted legacy debt, never to let new code pass: see [Adopt rules on existing code](#adopt-rules-on-existing-code).
 
 ### Unmatched files
 
-The Rules panel shows *N files in no element*; `graph-it check-architecture` lists them under `unmatchedFiles`.
+The Rules panel shows *N files in no element*; the `check_architecture` MCP tool lists them under `unmatchedFiles`.
 
-1. Run `graph-it check-architecture` to list the files.
+1. Call `check_architecture` to list the files.
 2. Add an element that selects them, or widen the `path`, `unit` or `role` of an existing one.
 3. Give the element its rules.
-4. Run `graph-it check-architecture` again: no unmatched file is left.
+4. Call `check_architecture` again: no unmatched file is left.
 
 ### An unexpected layer or a heavy dependency
 
@@ -309,54 +309,34 @@ A unit higher than expected, or a thick edge or heavy cell between two units mea
 1. Write `graphit.architecture.json` at the workspace root (see [The config file](#the-config-file)).
 2. Click **Refresh** in the Architecture view. The Rules panel shows "N violations of M rules (K new)", or "All N rules pass".
 3. Click a rule to list its violating file pairs; click a file to open it at the import.
-4. Or run `graph-it check-architecture` in a terminal.
+4. Or call the `check_architecture` MCP tool.
 
 Violating edges are dashed red; violating matrix cells are framed red. To fix them, see [A rule violation](#a-rule-violation).
-
-
-### Fail CI on a forbidden import
-
-1. Commit `graphit.architecture.json`.
-2. Add `npx graph-it check-architecture` to the pipeline. It exits with 1 when an `error` rule has a violation that is not in the baseline.
-3. Optional, for GitHub code scanning: write SARIF and upload it.
-
-```yaml
-- run: npx graph-it check-architecture --format sarif > architecture.sarif
-- uses: github/codeql-action/upload-sarif@v3
-  if: always()
-  with:
-    sarif_file: architecture.sarif
-```
-
-Each new violation is then annotated on the importing line. Run `graph-it check-architecture --help` for the other exit codes.
 
 
 ### Adopt rules on existing code
 
 1. Write the rules you want, even if the code breaks them today.
-2. Run `graph-it check-architecture --update-baseline`. It writes every current violation to `graphit.architecture.baseline.json`.
-3. Commit the baseline. From now on, only new violations fail.
-4. Fix violations over time, then run `--update-baseline` again: resolved entries leave the file.
+2. Add the accepted violations to `graphit.architecture.baseline.json` (rule name plus workspace-relative file pair).
+3. Commit the baseline. From now on, new violations are reported as new, and baselined ones are listed as accepted.
+4. Fix violations over time and remove their entries.
 
 The baseline holds workspace-relative `/` paths, so it is identical on Linux, macOS and Windows.
 
-## Same data, three surfaces
+## Same data, two surfaces
 
-The view, the CLI and the MCP server build the same graph: for the same community mode and file limit, counts are equal.
+The view and the MCP server build the same graph: for the same community mode and file limit, counts are equal.
 
-| Task | VS Code Architecture view | CLI | MCP tool |
-| --- | --- | --- | --- |
-| Units, layers, roles | Opens on units (`path` mode) | `graph-it architecture --level units` | `explore_architecture` with `level: "units"` |
-| Groups | `graph-it-live.communityMode` setting | `graph-it architecture --groups` | `explore_architecture` (summary) |
-| One level down | Double-click a unit or folder | `--folder <key>` | `folder` |
-| One group's files and edges | Double-click a group without sub-folders | — | `group` |
-| File pairs behind an edge | Click the edge | `--level units --from <unit> --to <unit>` | `from` and `to` |
-| Matrix | *Graph \| Matrix* switch | `--matrix` (`--format csv`) | `view: "matrix"` |
-| Dependents by group | **Dependents by group** action | — | — (use `find_referencing_files` or `get_impact_analysis`) |
-| Check rules | Rules panel | `graph-it check-architecture` | `check_architecture` |
-| Write the baseline | — | `check-architecture --update-baseline` | — |
-
-All options and output fields: run `graph-it architecture --help` and `graph-it check-architecture --help`, or call the `explore_architecture` and `check_architecture` MCP tools.
+| Task | VS Code Architecture view | MCP tool |
+| --- | --- | --- |
+| Units, layers, roles | Opens on units (`path` mode) | `explore_architecture` with `level: "units"` |
+| Groups | `graph-it-live.communityMode` setting | `explore_architecture` (summary) |
+| One level down | Double-click a unit or folder | `folder` |
+| One group's files and edges | Double-click a group without sub-folders | `group` |
+| File pairs behind an edge | Click the edge | `from` and `to` |
+| Matrix | *Graph \| Matrix* switch | `view: "matrix"` |
+| Dependents by group | **Dependents by group** action | — (use `find_referencing_files` or `get_impact_analysis`) |
+| Check rules | Rules panel | `check_architecture` |
 
 ## View controls
 
@@ -446,7 +426,7 @@ A monorepo with serverless functions, a frontend, micro-frontends, a backend and
 An element selects files by any of:
 
 - `path`: workspace-relative gitignore-style patterns, as in `.graphitignore`.
-- `unit`: unit keys or package names from `graph-it architecture --level units`; `*` matches any characters.
+- `unit`: unit keys or package names from `explore_architecture` with `level: "units"`; `*` matches any characters.
 - `role`: unit roles, for example `{ "role": "function" }`.
 
 With `each: true`, every matched folder or unit is an instance of its own. `mfe → mfe` then means "another micro-frontend", never a file of the same one. A file can belong to several elements.
@@ -469,11 +449,11 @@ A rule that could never report is refused: `noCycles` on an element without `eac
 
 ### Write the file for your workspace
 
-1. Run `graph-it architecture --level units` (or open the Architecture view) and note the unit keys.
+1. Open the Architecture view (or call `explore_architecture` with `level: "units"`) and note the unit keys.
 2. Under `elements`, name each part of your architecture by `path`, `unit` or `role`. Every source file should belong to an element: `check-architecture` reports the others as `unmatchedFiles`.
 3. Under `rules`, write what each element may import (`allowOnly`) or must not import (`forbid`), with a `reason`.
 4. Optionally, under `roles`, fix every role the view infers wrongly or marks `[unknown?]`.
-5. Run `graph-it check-architecture`: it should report 0 violations, no unmatched file and no config warning.
+5. Call `check_architecture`: it should report 0 violations, no unmatched file and no config warning.
 
 A single-package repository has its top-level folders as units. Graph-It-Live's own [`graphit.architecture.json`](../graphit.architecture.json) is one: its elements split `src/` into layers, and `roles` declares the units:
 
@@ -487,7 +467,7 @@ A single-package repository has its top-level folders as units. Graph-It-Live's 
 }
 ```
 
-The config is validated before anything runs; each error names its JSON path. A pattern matching no file is a config warning. The `$schema` line gives completion and validation in editors. The `$schema` and `elements`/`rules` shapes are the full key reference; run `graph-it architecture --help` for the command options.
+The config is validated before anything runs; each error names its JSON path. A pattern matching no file is a config warning. The `$schema` line gives completion and validation in editors. The `$schema` and `elements`/`rules` shapes are the full key reference.
 
 ## Limits
 
@@ -497,8 +477,8 @@ The config is validated before anything runs; each error names its JSON path. A 
 - **Edges drawn**: at most 3 × N down edges per level (N = groups of the level), the strongest; upward, cycle and rule-breaking edges always. *Min. imports per edge* above 1 shows edges by weight instead, and then hides every edge below it.
 - **Files in an entered group**: 200 at a time, most imported first; at most 500 files drawn at once.
 - **Lists**: evidence and dependents files, 50 at a time; MCP pages default to 50 items, 500 at most.
-- **Config size**: `graphit.architecture.json` up to 256 KB, baseline up to 32 MB; `--config` and `--baseline` must stay inside the workspace.
-- **Workspace**: the view analyses the configured workspace folder. Of the rules files, it reads only `graphit.architecture.json` and `graphit.architecture.baseline.json` at its root; `--config` and `--baseline` name others for the CLI and MCP.
+- **Config size**: `graphit.architecture.json` up to 256 KB, baseline up to 32 MB; the MCP `config` and `baseline` paths must stay inside the workspace.
+- **Workspace**: the view analyses the configured workspace folder. Of the rules files, it reads only `graphit.architecture.json` and `graphit.architecture.baseline.json` at its root; the MCP tools accept `config` and `baseline` to name others.
 
 ## How it is built
 
@@ -506,18 +486,11 @@ The config is validated before anything runs; each error names its JSON path. A 
 flowchart LR
   developer["Developer"]
   assistant["AI assistant<br/>MCP or VS Code LM tools"]
-  ci["CI pipeline"]
 
   subgraph vscode["VS Code"]
     extension["src/extension<br/>GraphProvider, services"]
     archService["ArchitectureViewService"]
     webview["src/webview<br/>React, ReactFlow, Cytoscape"]
-  end
-
-  subgraph cli["src/cli: graph-it"]
-    cliArchitecture["architecture<br/>groups, units, folder, matrix"]
-    cliCheck["check-architecture<br/>exit code, SARIF, baseline"]
-    cliOther["scan, path, trace, summary,<br/>review-pr, serve, tool"]
   end
 
   subgraph mcp["src/mcp: MCP server, stdio"]
@@ -537,7 +510,7 @@ flowchart LR
       rules["architectureRules<br/>elements, rules, baseline"]
       matrix["architectureMatrix<br/>dependency structure matrix"]
       view["architectureView<br/>levels, caps, dependents"]
-      explorer["ArchitectureExplorer<br/>paged MCP and CLI views"]
+      explorer["ArchitectureExplorer<br/>paged MCP view"]
       dependents["groupDependents<br/>dependents by group"]
     end
   end
@@ -546,25 +519,20 @@ flowchart LR
   config[("graphit.architecture.json<br/>graphit.architecture.baseline.json")]
 
   developer --> extension
-  developer --> cliArchitecture
   assistant --> mcpExplore
   assistant --> mcpCheck
   assistant --> mcpOther
-  ci --> cliCheck
 
   extension -- "typed messages" --> webview
   extension --> archService
   archService --> view
   archService --> explorer
   archService --> rules
-  cliArchitecture --> explorer
-  cliCheck --> rules
   mcpExplore --> explorer
   mcpCheck --> rules
   mcpOther --> worker
   worker --> spider
   worker --> callgraph
-  cliOther --> spider
 
   view --> explorer
   view --> matrix
@@ -585,4 +553,4 @@ flowchart LR
   webview --> shared
 ```
 
-*`src/analyzer/architecture/` builds the file graph, units, roles, rules and matrix; the extension's `ArchitectureViewService`, the CLI commands `architecture` and `check-architecture`, and the MCP tools `explore_architecture` and `check_architecture` use it.*
+*`src/analyzer/architecture/` builds the file graph, units, roles, rules and matrix; the extension's `ArchitectureViewService` and the MCP tools `explore_architecture` and `check_architecture` use it.*

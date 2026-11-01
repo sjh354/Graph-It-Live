@@ -14,4 +14,4 @@ paths:
 - Never emit executable HTML, scripts, `javascript:` links, `eval`, or untrusted external URLs inside generated diagrams.
 - Escape `|` as `\|` in Markdown table cells.
 - Show paths relative to workspace root in generated prose; do not expose absolute workspace paths.
-- Anchor output-directory `.gitignore` patterns at repository root, for example `/wiki/`.
+- Anchor output-directory `.gitignore` patterns at repository root, for example `/out/`.

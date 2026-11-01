@@ -6,10 +6,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { normalizePath } from "../../../src/shared/path";
 import { workerState } from "../../../src/mcp/shared/state";
 import {
-    createSpiderDependentsProvider,
     executeAnalyzeBreakingChanges,
     executeGetImpactAnalysis,
-    executeReviewPr,
 } from "../../../src/mcp/tools/impact";
 
 const createTempFile = async (dir: string, name: string, content = ""): Promise<string> => {
@@ -417,117 +415,4 @@ describe("impact tools", () => {
     });
   });
 
-  it("uses the warmed Spider provider for dependent, cycle, and unused-export review evidence", async () => {
-    execFileSync("git", ["init", "--initial-branch=main"], { cwd: tempDir });
-    execFileSync("git", ["config", "user.email", "test@example.com"], { cwd: tempDir });
-    execFileSync("git", ["config", "user.name", "Test"], { cwd: tempDir });
-    const sourceDir = path.join(tempDir, "src");
-    await fs.mkdir(sourceDir);
-    const apiPath = await createTempFile(sourceDir, "api.ts", "export function greet(name: string): string { return name; }\n");
-    execFileSync("git", ["add", "."], { cwd: tempDir });
-    execFileSync("git", ["commit", "-m", "base"], { cwd: tempDir });
-    await fs.writeFile(apiPath, "export function greet(name: string, formal: boolean): string { return name; }\n");
-
-    const consumerPath = path.join(sourceDir, "consumer.ts");
-    const spiderMock = {
-      getSymbolDependents: vi.fn(async () => [{ sourceSymbolId: `${consumerPath}:useGreeting` }]),
-      getSymbolGraph: vi.fn(async () => ({
-        symbols: [],
-        dependencies: [
-          { sourceSymbolId: `${apiPath}:greet`, targetSymbolId: `${apiPath}:helper`, targetFilePath: apiPath },
-          { sourceSymbolId: `${apiPath}:helper`, targetSymbolId: `${apiPath}:greet`, targetFilePath: apiPath },
-        ],
-      })),
-      findUnusedSymbols: vi.fn(async () => [{ name: "greet" }]),
-    };
-    setupWorkerState(spiderMock);
-
-    const result = await executeReviewPr({ baseRef: "main", maxDepth: 1 });
-
-    expect(result.limitations).toEqual([]);
-    expect(result.symbols[0]).toMatchObject({ impactedSymbolCount: 1, cycleEvidence: ["greet"], unusedExportEvidence: true });
-    expect(result.symbols[0].evidence.map((e) => e.kind)).toEqual(expect.arrayContaining(["impact", "cycle", "unused-export"]));
-    const normalizedApiPath = normalizePath(apiPath);
-    expect(spiderMock.getSymbolDependents).toHaveBeenCalledWith(normalizedApiPath, "greet");
-    expect(spiderMock.getSymbolGraph).toHaveBeenCalledWith(normalizedApiPath);
-    expect(spiderMock.findUnusedSymbols).toHaveBeenCalledWith(normalizedApiPath);
-  });
-});
-
-describe("createSpiderDependentsProvider", () => {
-  /**
-   * Every capability the review gate can use has to be wired through. A missing
-   * one is silent: the optional methods simply go unused, and the gate degrades
-   * to a weaker answer — which is exactly how consumers under test came to be
-   * reported as unverified.
-   */
-  it("delegates every capability the review gate consumes", async () => {
-    const spider = {
-      getSymbolDependents: vi.fn().mockResolvedValue([{ sourceSymbolId: "src/a.ts:useIt" }]),
-      getSymbolGraph: vi.fn().mockResolvedValue({ symbols: [], dependencies: [] }),
-      findUnusedSymbols: vi.fn().mockResolvedValue([]),
-      findReferencingFiles: vi.fn().mockResolvedValue([{ path: "tests/a.test.ts" }]),
-    };
-
-    const provider = createSpiderDependentsProvider(spider as never);
-
-    await expect(provider.getSymbolDependents("src/a.ts", "useIt")).resolves.toEqual([
-      { sourceSymbolId: "src/a.ts:useIt" },
-    ]);
-    await expect(provider.getSymbolGraph?.("src/a.ts")).resolves.toEqual({
-      symbols: [],
-      dependencies: [],
-    });
-    await expect(provider.findUnusedSymbols?.("src/a.ts")).resolves.toEqual([]);
-    await expect(provider.findReferencingFiles?.("src/a.ts")).resolves.toEqual([
-      { path: "tests/a.test.ts" },
-    ]);
-  });
-
-  it("forwards its arguments unchanged", async () => {
-    const spider = {
-      getSymbolDependents: vi.fn().mockResolvedValue([]),
-      getSymbolGraph: vi.fn().mockResolvedValue({ symbols: [], dependencies: [] }),
-      findUnusedSymbols: vi.fn().mockResolvedValue([]),
-      findReferencingFiles: vi.fn().mockResolvedValue([]),
-    };
-
-    const provider = createSpiderDependentsProvider(spider as never);
-    await provider.getSymbolDependents("/abs/src/a.ts", "useIt");
-    await provider.findReferencingFiles?.("/abs/src/a.ts");
-
-    expect(spider.getSymbolDependents).toHaveBeenCalledWith("/abs/src/a.ts", "useIt");
-    expect(spider.findReferencingFiles).toHaveBeenCalledWith("/abs/src/a.ts");
-  });
-
-  it("reads import cycles only when it knows the workspace root", () => {
-    const spider = { getSymbolDependents: vi.fn() };
-
-    expect(createSpiderDependentsProvider(spider as never).findFileCycles).toBeUndefined();
-    expect(createSpiderDependentsProvider(spider as never, os.tmpdir()).findFileCycles).toBeTypeOf("function");
-  });
-
-  /** Regression (#524): the CLI and MCP server built the cycle reader without the extension path, so its WASM parsers failed on Python files. */
-  it("reads Python import cycles through the extension path", { timeout: 30_000 }, async () => {
-    const workspace = await fs.mkdtemp(path.join(os.tmpdir(), "review-py-cycle-"));
-    try {
-      const git = (...args: string[]) => execFileSync("git", args, { cwd: workspace });
-      git("init", "--initial-branch=main");
-      git("config", "user.email", "test@example.com");
-      git("config", "user.name", "Test");
-      await fs.writeFile(path.join(workspace, "a.py"), "def a():\n    return 1\n");
-      await fs.writeFile(path.join(workspace, "b.py"), "from a import a\n");
-      git("add", ".");
-      git("commit", "-m", "base");
-      await fs.writeFile(path.join(workspace, "a.py"), "from b import a as b_a\n\ndef a():\n    return 1\n");
-      const spider = { getSymbolDependents: vi.fn() };
-
-      const withWasm = await createSpiderDependentsProvider(spider as never, workspace, process.cwd()).findFileCycles?.(["a.py"], "main");
-
-      expect(withWasm?.cycles.map((cycle) => [...cycle.files].sort((x, y) => x.localeCompare(y)))).toEqual([["a.py", "b.py"]]);
-      expect(withWasm?.limitations).toEqual([]);
-    } finally {
-      await fs.rm(workspace, { recursive: true, force: true });
-    }
-  });
 });

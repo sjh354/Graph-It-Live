@@ -58,15 +58,6 @@ test-results/**
 *.vsix
 dist/*.meta.json
 
-# CLI standalone binary — not part of the VS Code extension package
-# All variants (CJS .js and ESM .mjs) are excluded; the extension uses
-# dist/mcpServer.mjs internally — the CLI is a separate npm package.
-dist/graph-it.js
-dist/graph-it.js.map
-dist/graph-it.mjs
-dist/graph-it.mjs.map
-bin/**
-
 # Config files
 .gitignore
 .eslintignore

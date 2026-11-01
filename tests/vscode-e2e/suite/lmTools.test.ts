@@ -42,7 +42,6 @@ const EXPECTED_TOOLS = [
   'graph-it-live_query_call_graph',
   'graph-it-live_scan_dead_code',
   'graph-it-live_graph_context',
-  'graph-it-live_review_pr',
   'graph-it-live_query_natural_language',
 ];
 

@@ -12,7 +12,6 @@ import * as nodePath from "node:path";
 import { z } from "zod/v4";
 import { COMMUNITY_MODES } from "../shared/graph-types";
 import type { Dependency, DependencyType } from "../analyzer/types";
-import type { ReviewGateResult } from "../analyzer/ReviewGateAnalyzer";
 import type { OutOfRootReport } from "../analyzer/utils/workspaceBoundary";
 import {
   getRelativePath as _getRelativePath,
@@ -114,13 +113,11 @@ export type McpToolName =
   | "find_unused_symbols"
   | "trace_function_execution"
   | "analyze_breaking_changes" // NEW: Detect breaking changes
-  | "review_pr" // Deterministic local Git diff review
   | "get_impact_analysis" // NEW: Full impact analysis
   | "generate_codemap" // NEW: Full codemap generation for a single file
   | "query_call_graph" // NEW: Cross-file call graph query (callers/callees via SQLite)
   | "scan_dead_code" // NEW: Workspace-wide dead code scan
   | "query_natural_language" // Natural language query over the call graph
-  | "generate_wiki" // Generate markdown wiki from call graph
   | "explore_architecture" // Grouped architecture summary, group boundary, edge evidence
   | "check_architecture"; // Declared architecture rules checked against the imports
 
@@ -452,14 +449,6 @@ export type AnalyzeBreakingChangesParams = z.infer<
   typeof AnalyzeBreakingChangesParamsSchema
 >;
 
-export const ReviewPrParamsSchema = z.object({
-  baseRef: GenericStringSchema.describe("Git base ref to compare against, for example origin/main"),
-  headRef: GenericStringSchema.optional().describe("Optional Git head ref; defaults to the checked-out worktree"),
-  maxFiles: z.number().int().min(1).max(1000).optional(),
-  maxDepth: z.number().int().min(1).max(10).optional(),
-});
-export type ReviewPrParams = z.infer<typeof ReviewPrParamsSchema>;
-
 // NEW: Schema for get_impact_analysis
 export const GetImpactAnalysisParamsSchema = z.object({
   filePath: FilePathSchema.describe("Absolute path to the file being modified"),
@@ -681,25 +670,6 @@ export const GraphContextParamsSchema = z.object({
 });
 export type GraphContextParams = z.infer<typeof GraphContextParamsSchema>;
 
-// Schema for generate_wiki
-export const GenerateWikiParamsSchema = z.object({
-  outputDir: FilePathSchema.optional()
-    .refine((value) => value === undefined || !nodePath.isAbsolute(value), "Output directory must be relative to the workspace")
-    .describe("Workspace-relative output directory for wiki files (default: wiki)"),
-  topHubsLimit: z
-    .number()
-    .int()
-    .min(1)
-    .max(50)
-    .optional()
-    .describe("Number of top hub files to list (max: 50, default: 10)"),
-  scope: FilePathSchema.optional()
-    .refine((value) => value === undefined || !nodePath.isAbsolute(value), "Scope must be relative to the workspace")
-    .describe("Relative path within workspace to restrict wiki to (e.g. 'src/')"),
-  exclude: z.array(GenericStringSchema).max(100).optional().describe("Relative glob-like patterns to exclude"),
-}).strict();
-export type GenerateWikiParams = z.infer<typeof GenerateWikiParamsSchema>;
-
 const GroupRefSchema = z
   .union([z.number().int().min(0), z.string().min(1).max(256)])
   .describe("Numeric group id from a previous response, or a group key (e.g. 'analyzer') or label as a string; 0 or 'unassigned' for files without a group");
@@ -833,7 +803,6 @@ export const toolSchemas: Record<McpToolName, z.ZodType<unknown>> = {
   find_unused_symbols: FindUnusedSymbolsParamsSchema,
   trace_function_execution: TraceFunctionExecutionParamsSchema,
   analyze_breaking_changes: AnalyzeBreakingChangesParamsSchema,
-  review_pr: ReviewPrParamsSchema,
   get_impact_analysis: GetImpactAnalysisParamsSchema,
   generate_codemap: GenerateCodemapParamsSchema,
   query_call_graph: QueryCallGraphParamsSchema,
@@ -841,7 +810,6 @@ export const toolSchemas: Record<McpToolName, z.ZodType<unknown>> = {
   explore_architecture: ExploreArchitectureParamsSchema,
   check_architecture: CheckArchitectureParamsSchema,
   query_natural_language: QueryNaturalLanguageParamsSchema,
-  generate_wiki: GenerateWikiParamsSchema,
 };
 
 /**
@@ -1472,7 +1440,7 @@ export type BreakingChangeType =
   | "member-optional-to-required" // Optional member became required
   | "type-alias-changed" // Type alias definition changed
   | "member-added" // Union or enum gained members: exhaustive consumers stop compiling
-  | "symbol-moved"; // Removed here, declared by another changed file (review_pr)
+  | "symbol-moved"; // Removed here, declared by another changed file
 
 /**
  * A single breaking change detected
@@ -1515,7 +1483,6 @@ export interface AnalyzeBreakingChangesResult {
 }
 
 /** Result of deterministic local PR review analysis. */
-export type ReviewPrResult = ReviewGateResult;
 
 // ============================================================================
 // NEW: Impact Analysis Result
