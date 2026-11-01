@@ -14,7 +14,6 @@ Each fact has one owner. Do not restate it here; link to the file that owns it.
 | Windows/macOS/Linux path handling and testing | [development/CROSS_PLATFORM_TESTING.md](development/CROSS_PLATFORM_TESTING.md) |
 | Agent working rules | [`.agents/AGENTS.md`](../.agents/AGENTS.md), [`.agents/rules/`](../.agents/rules/) |
 | User-facing setup and features | [README.md](../README.md) |
-| Release history | [changelog.md](../changelog.md) |
 
 ## Diagrams
 

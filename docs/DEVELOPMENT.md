@@ -449,7 +449,7 @@ npm run package:verify
 
 ### Before Releasing
 
-Release order, changelog rules, and tag procedure are owned by [`.agents/rules/release.md`](../.agents/rules/release.md). Locally, that means:
+Release order and tag procedure are owned by [`.agents/rules/release.md`](../.agents/rules/release.md). Locally, that means:
 
 ```bash
 npm test
