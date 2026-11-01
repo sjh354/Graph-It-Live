@@ -865,12 +865,13 @@ export class GraphProvider implements vscode.WebviewViewProvider {
     await this.handleDrillDown(filePath, true, currentMode);
   }
 
-  public showEditorGraph(): void {
+  public showEditorGraph(resource?: vscode.Uri): void {
+    const targetUri = resource ?? vscode.window.activeTextEditor?.document.uri;
     if (this._editorPanel) {
       this._view = this._editorPanel;
       this._callGraphViewService?.setSidebarWebview(this._editorPanel);
       this._editorPanel.reveal(undefined, true);
-      void this.updateGraph();
+      void this.showGraphStartingPoint(targetUri);
       return;
     }
 
@@ -883,6 +884,20 @@ export class GraphProvider implements vscode.WebviewViewProvider {
     this._editorPanel = panel;
     panel.onDidDispose(() => { this._editorPanel = undefined; });
     this.resolveWebviewView(panel);
+    void this.showGraphStartingPoint(targetUri);
+  }
+
+  /**
+   * The title button opens the graph on the file it was pressed from; the
+   * command palette (no file) keeps the current graph and just refreshes it.
+   */
+  private async showGraphStartingPoint(uri?: vscode.Uri): Promise<void> {
+    const filePath = uri?.scheme === 'file' ? uri.fsPath : undefined;
+    if (!filePath || !SUPPORTED_SOURCE_FILE_REGEX.test(filePath)) {
+      await this.updateGraph();
+      return;
+    }
+    await this.handleDrillDown(filePath, false, 'symbol');
   }
 
   public resolveWebviewView(

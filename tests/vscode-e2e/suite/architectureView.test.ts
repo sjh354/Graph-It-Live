@@ -323,6 +323,9 @@ function assertReadableLayout(render: ArchitectureRender): void {
 
 /** Opens the view and refreshes it: earlier suites edit fixtures, which leaves the cached summary stale. */
 async function openFreshArchitecture(): Promise<ArchitectureRender> {
+  // The view must be the visible panel view: a hidden webview never receives a resize, and
+  // another suite may have left Terminal or Output focused.
+  await vscode.commands.executeCommand('graph-it-live.graphView.focus');
   // A cold extension host resolves the sidebar after suiteSetup's wait: until then the switch is a no-op ("View not initialized").
   const start = Date.now();
   do {

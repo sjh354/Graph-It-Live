@@ -48,7 +48,7 @@ export class CommandRegistrationService {
     return vscode.commands.registerCommand('graph-it-live.showGraph', async (resource?: vscode.Uri) => {
       try {
         if (resource) {
-          this.provider.showEditorGraph();
+          this.provider.showEditorGraph(resource);
         } else {
           await vscode.commands.executeCommand('graph-it-live.graphView.focus');
         }

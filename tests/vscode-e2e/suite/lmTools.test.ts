@@ -1,7 +1,7 @@
 /**
  * E2E Tests for native Language Model Tools registration.
  *
- * Verifies that after extension activation all 24 Graph-It-Live LM tools
+ * Verifies that after extension activation all 23 Structure Graph LM tools
  * are present in `vscode.lm.tools`.  Tests are skipped gracefully when the
  * VS Code host doesn't support `vscode.lm.tools` (pre-1.90 or non-Copilot
  * environments) so they never cause false failures on older CI agents.
@@ -17,7 +17,7 @@ import { before } from 'mocha';
 import * as assert from 'node:assert';
 import * as vscode from 'vscode';
 
-// Minimum set of expected tool names (all 24).
+// Minimum set of expected tool names (all 23).
 const EXPECTED_TOOLS = [
   'graph-it-live_find_referencing_files',
   'graph-it-live_analyze_dependencies',
@@ -80,7 +80,7 @@ suite('LM Tools Registration Test Suite', () => {
     assert.ok(supported, 'vscode.lm.registerTool should be a function');
   });
 
-  test('All 24 Graph-It-Live LM tools are registered', function () {
+  test('All 23 Structure Graph LM tools are registered', function () {
     if (!lmToolsSupported()) {
       this.skip();
     }
@@ -122,7 +122,7 @@ suite('LM Tools Registration Test Suite', () => {
     assert.ok(tool, 'graph-it-live_query_call_graph should be registered');
   });
 
-  test('Total Graph-It-Live tool count is exactly 24', function () {
+  test('Total Structure Graph tool count is exactly 23', function () {
     if (!lmToolsSupported()) {
       this.skip();
     }
@@ -131,8 +131,8 @@ suite('LM Tools Registration Test Suite', () => {
     const graphItLiveTools = tools.filter((t) => t.name.startsWith('graph-it-live_'));
     assert.strictEqual(
       graphItLiveTools.length,
-      24,
-      `Expected 24 graph-it-live tools, found ${graphItLiveTools.length}: ${graphItLiveTools.map((t) => t.name).join(', ')}`,
+      23,
+      `Expected 23 graph-it-live tools, found ${graphItLiveTools.length}: ${graphItLiveTools.map((t) => t.name).join(', ')}`,
     );
   });
 });

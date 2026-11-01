@@ -55,7 +55,7 @@ function createProviderMock(): GraphProvider {
   return {
     getViewMode: vi.fn().mockReturnValue('file'), // E2E test helper
     getReverseDependenciesVisible: vi.fn().mockReturnValue(false),
-    showReviewCallGraph: vi.fn(),
+    showEditorGraph: vi.fn(),
     getCallGraphRenderCount: vi.fn().mockReturnValue(1),
     getCallGraphNodeCount: vi.fn().mockReturnValue(2),
     getCallGraphEdgeCount: vi.fn().mockReturnValue(3),
@@ -229,6 +229,18 @@ describe('CommandRegistrationService', () => {
 
     await handler?.();
     expect(executeCommand).toHaveBeenCalledWith('graph-it-live.graphView.focus');
+  });
+
+  it('opens the graph in an editor tab on the file the title button came from', async () => {
+    const provider = createProviderMock();
+    new CommandRegistrationService({ provider, commandCoordinator: createCommandCoordinatorMock(), logger: createLoggerMock() }).registerAll();
+    const handler = registeredHandlers.get('graph-it-live.showGraph');
+    const resource = { scheme: 'file', fsPath: '/workspace/src/api.ts' };
+
+    await handler?.(resource);
+
+    expect(provider.showEditorGraph).toHaveBeenCalledWith(resource);
+    expect(executeCommand).not.toHaveBeenCalledWith('graph-it-live.graphView.focus');
   });
 
   it('executes provider commands and reports success', async () => {
