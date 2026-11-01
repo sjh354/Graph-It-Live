@@ -42,7 +42,7 @@ Use the same graph data to navigate code, review refactors, generate codemaps, a
 **Requirements:** VS Code 1.96 or later. Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=magic5644.graph-it-live) or [Open VSX](https://open-vsx.org/extension/magic5644/graph-it-live).
 
 1. Open a project.
-2. Open the Graph-It-Live view from the Activity Bar.
+2. Run **Graph-It-Live: Show Dependency Graph** from the Command Palette; the view opens in the bottom panel.
 3. Run **Graph-It-Live: Show Dependency Graph** from the Command Palette.
 4. Click a file to open it, double-click it for the Symbol View, or use **Show Call Graph** for cross-file calls.
 
