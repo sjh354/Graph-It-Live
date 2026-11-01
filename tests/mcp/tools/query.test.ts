@@ -4,7 +4,7 @@
  * Uses a mock CallGraphIndexer (no sql.js WASM dependency) and mocks
  * QueryEngine.query to isolate the tool logic.
  *
- * Contract under test (ADR-S2-01-toon-field-mcp-compat.md):
+ * Contract under test:
  *  - QueryResult.json (analyzer) is a compact JSON string, NEVER toon.
  *  - MCP tool field `toon` (outputFormat='toon', default) must be a REAL
  *    TOON encoding (2 blocks nodes/edges + a meta line), reconstructed from

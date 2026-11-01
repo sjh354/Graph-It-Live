@@ -363,7 +363,7 @@ Validation is enforced during pull requests (not via scheduled nightly workflows
 3. Reusable CI reports package size for review.
 4. PRs must include evidence in `.github/pull_request_template.md`.
 
-For review consistency, keep `CONTRIBUTING.md` and the PR template aligned.
+For review consistency, keep the PR template aligned with the review checklist.
 
 ### Troubleshooting Package Issues
 
@@ -449,7 +449,7 @@ npm run package:verify
 
 ### Before Releasing
 
-Release order, changelog rules, and tag procedure are owned by [CONTRIBUTING.md *Releasing*](CONTRIBUTING.md#releasing). Locally, that means:
+Release order, changelog rules, and tag procedure are owned by [`.agents/rules/release.md`](../.agents/rules/release.md). Locally, that means:
 
 ```bash
 npm test

@@ -244,7 +244,7 @@ graph-it context --mode path --from src/api.ts#handle --to src/db.ts#query
 graph-it context --mode impact --seeds src/api.ts#handle --depth 3 --format json
 ```
 
-Use `--detail compact` and `--token-budget` for agent-oriented responses. See the [TOON format specification](docs/architecture/TOON_FORMAT.md) for the output format and measurement protocol.
+Use `--detail compact` and `--token-budget` for agent-oriented responses; add `--format toon` for the compact TOON encoding.
 
 ## AI integrations
 
@@ -399,7 +399,7 @@ The `graph-it review-pr` command performs a deterministic local Git diff review 
 
 By default, `--base <ref>` is compared with the current working tree, including staged and unstaged file contents. Pass `--head <ref>` to compare two Git refs. Use `--depth` and `--max-files` to bound impact traversal and changed-file analysis. Run `graph-it review-pr --help` for scoring thresholds, output formats, limitations, and examples.
 
-The reusable GitHub Action is informational by default. Set `fail-on-risk: high` or `critical` to gate a pull request. Add it to a consumer workflow with [`docs/examples/graph-it-review-gate.yml`](docs/examples/graph-it-review-gate.yml).
+The reusable GitHub Action is informational by default. Set `fail-on-risk: high` or `critical` to gate a pull request.
 
 Use `pull_request`, not `pull_request_target`, for untrusted pull requests. The action analyzes the consumer checkout in an isolated temporary directory and sends only a sanitized report to GitHub.
 
@@ -418,7 +418,6 @@ Use `pull_request`, not `pull_request_target`, for untrusted pull requests. The 
 
 - [Design decisions](docs/DESIGN.md) — product scope, responsibilities, and why
 - [Development guide](docs/DEVELOPMENT.md) — setup, builds, tests, and WASM architecture
-- [Contributing guide](docs/CONTRIBUTING.md) — contribution workflow and conventions
 - [Architecture guide](docs/architecture.md) — Architecture view, `graphit.architecture.json` rules, and `check-architecture`
 - [Documentation index](docs/README.md) — every other document
 

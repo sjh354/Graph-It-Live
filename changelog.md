@@ -1224,7 +1224,7 @@ This release stays a minor version: the changed `explore_architecture` fields be
   - **Unicode support**: Limits are byte-based and handle multi-byte characters correctly
   - **Clear error messages**: Validation failures include specific limits and field names
   - **Impact**: Protects against accidental or malicious oversized payloads without affecting legitimate use cases
-  - See [Payload Limits Documentation](docs/architecture/MCP_PAYLOAD_LIMITS.md) for complete details
+  - See `PAYLOAD_LIMITS` in `src/mcp/types.ts` for the enforced limits
 
 - **P1 - MCP Debug Logging Now Opt-In**: Fixed privacy issue where MCP server logged project paths and environment info to `~/mcp-debug.log` without user consent
   - Debug logging is now **disabled by default** to prevent exposure of sensitive project information

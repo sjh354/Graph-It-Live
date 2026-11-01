@@ -18,12 +18,12 @@ import { z } from "zod/v4";
 import { workerState } from "../shared/state";
 
 // ---------------------------------------------------------------------------
-// TOON encoding of the compact composite JSON payload (ADR-S2-01)
+// TOON encoding of the compact composite JSON payload
 //
 // QueryEngine.toCompactJson() returns a compact JSON string (`QueryResult.json`)
 // that is NOT TOON — it is a short-key JSON object. This function converts that
 // compact JSON into a real TOON encoding (2 blocks: nodes/edges + a meta line)
-// for the MCP `toon` output field. See docs/architecture/ADR-S2-01-toon-field-mcp-compat.md.
+// for the MCP `toon` output field.
 // ---------------------------------------------------------------------------
 
 interface CompactQueryPayload {
@@ -104,7 +104,7 @@ export interface QueryNaturalLanguageResult {
    * Vrai encodage TOON (2 blocs nodes/edges + ligne meta), reconstruit à partir
    * de QueryResult.json (JSON compact, analyzer). Asymétrie de nommage
    * volontaire : QueryResult.json (analyzer) n'est JAMAIS du TOON ; ce champ
-   * (MCP) l'est. Voir ADR-S2-01-toon-field-mcp-compat.md.
+   * (MCP) l'est.
    */
   toon?: string;
   /** Full JSON payload when outputFormat='json' */

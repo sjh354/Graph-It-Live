@@ -11,13 +11,21 @@ paths:
 
 # Release Preparation
 
-Apply this file by explicit routing for any release preparation (docs, media, site, changelog, version, tag), even when no matched file is open. Order: docs PR → media and site PR → changelog PR → tag. Procedure: `docs/CONTRIBUTING.md` *Releasing*.
+Apply this file by explicit routing for any release preparation (docs, media, site, changelog, version, tag), even when no matched file is open. Order: docs PR → media and site PR → changelog PR → tag.
+
+## Procedure
+
+1. Land doc fixes in their own PR, then media and site in their own PR, then the changelog PR.
+2. `changelog.md` gets `## v<version>` at the top before tagging; the release fails without it.
+3. Push tag `v<version>` on `main`. `release.yml` validates, packages, publishes the VSIX to both stores, and rewrites the GitHub release body from `scripts/release-notes.mjs`.
+4. `publish-npm.yml` publishes the CLI to npm. Its validation runs unit tests on Linux, macOS and Windows; E2E and VSIX packaging run only when a store is selected. Set `skip_tests` only for a tag `release.yml` already validated.
+5. Preview the release body: `node scripts/release-notes.mjs v<version> release-notes.md`.
 
 ## Documentation first
 
 Documentation must match shipped code before the changelog PR. Never tag over stale docs.
 
-1. Audit user-facing docs against code: `README.md`, `docs/**`, and `plugins/graph-it-live/README.md`.
+1. Audit user-facing docs against code: `README.md` and `docs/**`.
 2. Check facts from source, not memory: CLI commands/options (`src/cli`), MCP tools and parameters (`src/mcp`), settings and commands (`package.json` `contributes`), file paths, counts, versions.
 3. Run `npm run sync:tool-descriptions -- --check`; fix drift.
 4. Update or remove stale content; mark finished one-off docs (sprints, specs) as historical or delete them.
