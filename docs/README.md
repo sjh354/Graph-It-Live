@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-11-01
 
-Index of every document except the root [README](../README.md) (user-facing setup and features) and [AGENTS.md](../AGENTS.md) (agent working rules, with the rules themselves in [`.agents/rules/`](../.agents/rules/)).
+Index of every document except the root [README](../README.md) (user-facing setup and features) and [`.agents/AGENTS.md`](../.agents/AGENTS.md) (agent working rules, with the path-scoped rules themselves in [`.agents/rules/`](../.agents/rules/)).
 
 Each fact has one owner. Do not restate a rule here; link to the file that owns it.
 

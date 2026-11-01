@@ -136,7 +136,7 @@ vsce package --no-dependencies  # Current workaround
 - Delete `node_modules/` and `package-lock.json`
 - Generate `yarn.lock`
 - Modify 2 CI workflow files
-- Update documentation (README.md, AGENTS.md)
+- Update documentation (README.md, .agents/AGENTS.md)
 - Test packaging on 3 platforms
 - Test all npm scripts
 - Test VS Code extension debugging
@@ -265,7 +265,7 @@ This decision should be revisited if:
 
 ## Related Documents
 
-- [AGENTS.md](../../AGENTS.md) - Documents current npm configuration
+- [`.agents/AGENTS.md`](../../.agents/AGENTS.md) - Documents current npm configuration
 - [changelog.md](../../changelog.md) - v1.6.1 dependency upgrade notes
 - [.npmrc](../../.npmrc) - Current peer dependency workaround
 - [package.json](../../package.json) - Build scripts with `--no-dependencies`

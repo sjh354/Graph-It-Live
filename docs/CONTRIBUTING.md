@@ -288,7 +288,7 @@ Use `.github/pull_request_template.md` and complete all checkboxes before reques
 
 ## Coding Standards
 
-The rules are owned by `AGENTS.md` and `.agents/rules/`; do not restate them here.
+The rules are owned by `.agents/AGENTS.md` and `.agents/rules/`; do not restate them here.
 
 - Run `npm run lint` and `npm run check:types` before committing.
 - TypeScript stays strict, `any` is avoided, and ESLint decides formatting.
@@ -304,7 +304,7 @@ Update documentation in the same change when behavior, commands, settings, or bu
 - **docs/DESIGN.md**: product and design decisions, and why.
 - **docs/DEVELOPMENT.md**: setup, build, tests, WASM, troubleshooting.
 - **docs/README.md**: index of every other document.
-- **AGENTS.md** and **.agents/rules/**: agent working rules.
+- **`.agents/AGENTS.md`** and **`.agents/rules/`**: agent working rules.
 - **Inline comments**: WHY for non-obvious constraints, not WHAT the code states.
 
 Style: concise, factual, code examples where they help, TOC kept current, screenshots/GIFs for UI features.

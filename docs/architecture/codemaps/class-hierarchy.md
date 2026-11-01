@@ -306,7 +306,7 @@ classDiagram
 
 - [MCP_PAYLOAD_LIMITS.md](../MCP_PAYLOAD_LIMITS.md) - API boundaries
 - [PERFORMANCE_OPTIMIZATIONS.md](../PERFORMANCE_OPTIMIZATIONS.md) - Caching strategy
-- [../../../AGENTS.md](../../../AGENTS.md) - Architecture overview
+- [`.agents/AGENTS.md`](../../../.agents/AGENTS.md) - Architecture overview
 
 ## Notes for Maintainers
 

@@ -15,6 +15,7 @@ Prefix shell commands with `rtk`; use `rtk proxy <command>` when no optimized wr
 - **Simplicity First:** make every change as simple as possible with minimal code impact.
 - **No Laziness:** find root causes; do not use temporary workarounds.
 - **Minimal Impact:** change only what is necessary and avoid introducing unrelated risk.
+- **Conflict Check:** if loaded instructions conflict, stop and report the conflict instead of choosing arbitrarily.
 
 ## Universal Rules
 - Keep `src/analyzer/**` and `src/mcp/**` Node.js-only: never import `vscode`.
@@ -56,7 +57,7 @@ Read only the files the routing table selects; do not load `.agents/rules/` whol
 
 ## Documentation Map
 
-- `.agents/AGENTS.md` — this file, the only copy. Root `AGENTS.md` symlinks to it and `CLAUDE.md` symlinks to `AGENTS.md`.
+- `.agents/AGENTS.md` — this file, the only copy. Load it explicitly; there is no root `AGENTS.md` or `CLAUDE.md`.
 - `.agents/rules/` — agent working rules (this table's targets). Nothing else.
 - `docs/DESIGN.md` — product and design decisions, and why.
 - `docs/README.md` — index of every other document.

@@ -25,8 +25,6 @@ tsconfig.tsbuildinfo
 *.tsbuildinfo
 meta.json
 metadata.json
-CLAUDE.md
-AGENTS.md
 .agents/**
 docs/**
 
@@ -113,7 +111,6 @@ _bmad-output/**
 PROMPT_SPEC.md
 walkthrough.md
 implementation_plan.md
-AGENTS.md
 *.log
 task.md
 test.log
