@@ -207,7 +207,6 @@
       "editor/title": [
         {
           "command": "graph-it-live.showGraph",
-          "when": "resourceExtname =~ /\\.(ts|tsx|js|jsx|mjs|cjs|vue|svelte|gql|graphql|py|pyi|rs|cs|csproj|go|java)$/",
           "group": "navigation"
         }
       ],
