@@ -234,5 +234,7 @@ See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for the full project structure, t
 
 MIT. See [LICENSE](LICENSE).
 
+Originally based on [Graph-It-Live](https://github.com/magic5644/Graph-It-Live) by magic5644 (MIT).
+
 Language icons are provided by [SuperTinyIcons](https://github.com/edent/SuperTinyIcons) under the CC0-1.0 license.
 

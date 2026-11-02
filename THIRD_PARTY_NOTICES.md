@@ -3,6 +3,8 @@
 Graph-It-Live is licensed under the MIT License (see `LICENSE`). The VS Code extension bundles
 the following third-party software, which keeps its own license.
 
+This project is originally based on [Graph-It-Live](https://github.com/magic5644/Graph-It-Live) by magic5644 (Copyright (c) 2025 magic56, MIT License).
+
 ## elkjs 0.13.0
 
 - Copyright (c) 2017, 2021 Kiel University and others.
